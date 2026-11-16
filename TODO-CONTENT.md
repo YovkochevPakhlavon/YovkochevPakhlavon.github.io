@@ -6,10 +6,6 @@ On the site, placeholders look like `[this]` and are shown in grey or with a das
 
 ## Questions for you
 
-- [ ] **New alphabet in the fixed dictionary.** SITE_SPEC §3 gives `nav.home`/`footer.home` = "Bosh sahifa"
-      and `nav.publications` = "Nashrlar", `cta.publications` = "Nashrlarni köriş". With sh → ş these
-      would be "Boş sahifa", "Naşrlar", "Naşrlarni köriş". The site currently uses your exact strings.
-      Should they be converted?
 - [ ] **BlackPy install command.** The mockup's terminal shows `pip install blackpy`. Is BlackPy
       published on PyPI under that name? Until confirmed the terminal shows `$ [install command]`
       (`src/content/projects/blackpy.yaml`, `terminal:`).
@@ -81,3 +77,4 @@ Points to check in particular:
 | `notFound.title`   | Hodisalar gorizonti ortida adaşib qoldingiz                                           | Lost beyond the event horizon                                                        |
 
 "Event horizon" = _hodisalar gorizonti_ (confirmed).
+Dictionary words converted to the new alphabet (confirmed): Boş sahifa, Naşrlar, Naşrlarni köriş.

@@ -8,10 +8,10 @@ import type { UiKey } from './en';
 
 const uz: Record<UiKey, string> = {
   // Navigation
-  'nav.home': 'Bosh sahifa',
+  'nav.home': 'Boş sahifa',
   'nav.about': 'Men haqimda',
   'nav.research': 'Tadqiqotlar',
-  'nav.publications': 'Nashrlar',
+  'nav.publications': 'Naşrlar',
   'nav.projects': 'Loyihalar',
   'nav.teaching': 'Öqitiş',
   'nav.contact': 'Aloqa',
@@ -32,7 +32,7 @@ const uz: Record<UiKey, string> = {
 
   // Calls to action
   'cta.cv': 'CV yuklab oliş',
-  'cta.publications': 'Nashrlarni köriş',
+  'cta.publications': 'Naşrlarni köriş',
 
   // About
   'about.path': 'Akademik yöl',
@@ -113,7 +113,7 @@ const uz: Record<UiKey, string> = {
 
   // Footer
   'footer.next': 'Keyingi',
-  'footer.home': 'Bosh sahifa',
+  'footer.home': 'Boş sahifa',
   'footer.license': 'Kod: MIT litsenziyasi · Kontent ©', // REVIEW
   'footer.notes': 'Qaydlar', // REVIEW
 
@@ -126,7 +126,7 @@ const uz: Record<UiKey, string> = {
   // 404
   'notFound.title': 'Hodisalar gorizonti ortida adaşib qoldingiz', // REVIEW
   'notFound.text': 'Bu sahifa mavjud emas yoki boşqa joyga köçirilgan.', // REVIEW
-  'notFound.home': 'Bosh sahifaga qaytiş', // REVIEW
+  'notFound.home': 'Boş sahifaga qaytiş', // REVIEW
 };
 
 export default uz;

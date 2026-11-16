@@ -63,7 +63,8 @@ Sh→**Ş ş** (U+015E/U+015F), Ch→**Ç ç** (U+00C7/U+00E7). Precomposed char
 - "ng" stays plain `n`+`g` (no ñ, no new letter).
 - The tutuq belgisi stays where it separates sounds and is typed `ʼ` (U+02BC): maʼno, sanʼat.
 - Do not convert English words, names, DOIs, URLs or code inside Uzbek files.
-- Uzbek UI strings from SITE_SPEC §3 are fixed; other Uzbek text is translated from English
+- Uzbek UI strings from SITE_SPEC §3 are fixed, except that "Bosh sahifa"/"Nashrlar" were
+  converted to "Boş sahifa"/"Naşrlar" (owner confirmed); other Uzbek text is translated from English
   and checked letter by letter. Mark Claude-written Uzbek with `// REVIEW` and list it in TODO-CONTENT.md.
 
 Name spellings (from `profile.yaml`): EN "Pakhlavon Yovkochev" / logo "Yovkochev";

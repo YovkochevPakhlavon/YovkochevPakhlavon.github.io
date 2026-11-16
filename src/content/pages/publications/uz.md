@@ -1,5 +1,5 @@
 ---
-title: Nashrlar
+title: Naşrlar
 description: Pahlavon Yovqoçevning maqolalari, preprintlari, PhD dissertatsiyasi va darsliklari — DOI va arXiv havolalari bilan.
 ---
 
