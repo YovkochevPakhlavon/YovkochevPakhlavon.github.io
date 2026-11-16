@@ -1,6 +1,7 @@
 /** Build-time checks for files you upload to public/ (CV, syllabi, PDFs). */
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { profile } from './profile';
 
 /** `path` is relative to public/, e.g. "files/cv.pdf". */
 export function publicFileExists(path: string): boolean {
@@ -13,4 +14,5 @@ export function publicUrl(path: string): string {
   return `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`;
 }
 
-export const CV_PATH = 'files/cv.pdf';
+/** CV location, from profile.yaml (`cv`). */
+export const CV_PATH = profile.cv;

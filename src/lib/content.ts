@@ -55,13 +55,6 @@ export async function getCourses() {
   return all.sort((a, b) => a.data.order - b.data.order || a.id.localeCompare(b.id));
 }
 
-export const getCourseText = (slug: string, lang: Lang) =>
-  pick(
-    async (l) => await getEntry('courseText', `${slug}/${l}`),
-    lang,
-    `src/content/courses/${slug}/`,
-  );
-
 /** True when a text is (or contains) a visible placeholder such as "[MSc university]". */
 export const isPlaceholder = (value: string | undefined | null): boolean =>
   !value || /\[[^\]]+\]/.test(value);

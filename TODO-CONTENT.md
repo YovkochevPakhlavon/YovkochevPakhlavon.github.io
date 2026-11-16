@@ -22,8 +22,9 @@ On the site, placeholders look like `[this]` and are shown in grey or with a das
 
 ## Files
 
-- [ ] Portrait photo → `src/assets/portrait.jpg` (or .png/.webp; used on Home and About)
-- [ ] CV PDF → `public/files/cv.pdf` (until then the CV buttons show `[cv.pdf]`)
+- [ ] Portrait photo — admin panel: Profile → Portrait photo (or put it in `src/assets/` and set `portrait:`)
+- [ ] CV PDF — admin panel: Profile → CV (or `public/files/cv.pdf`); until then the CV buttons show `[cv.pdf]`
+- [ ] One-time: create the GitHub token for the admin panel (EDITING.md, section 1)
 
 ## About — `src/content/about/en.md` and `uz.md`
 
@@ -55,7 +56,7 @@ On the site, placeholders look like `[this]` and are shown in grey or with a das
 
 ## Teaching — `src/content/courses/fundamentals-of-scientific-research/` and `src/content/pages/teaching/`
 
-- [ ] Course description (`en.md`, `uz.md`)
+- [ ] Course description (`description:` in `course.yaml`)
 - [ ] Semester and hours (`course.yaml`)
 - [ ] Syllabus PDF → `public/files/…`, then set `syllabus:` in `course.yaml`
 - [ ] Lectures, textbooks, video lessons and assignments — add them at the bottom of `course.yaml`
@@ -72,7 +73,7 @@ dictionary), plus all Uzbek page texts translated from English:
 - `src/content/pages/*/uz.md` — page intros, Home statement and chips, Research methods and cards
 - `src/content/research/uz/*.md` — theme descriptions (titles are from SITE_SPEC)
 - `src/content/projects/blackpy.yaml` — `uz:` description and roadmap
-- `src/content/courses/*/uz.md`
+- `EDITING.md` (the whole editing guide)
 
 Points to check in particular:
 

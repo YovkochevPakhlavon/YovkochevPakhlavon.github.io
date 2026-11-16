@@ -5,14 +5,15 @@
  * The tabs are anchor links (#lectures …): without JavaScript all sections are shown one
  * after another and the links jump to them; with JavaScript one section is shown at a time.
  */
-import { render, type CollectionEntry } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
 import { Image } from 'astro:assets';
 import PageLayout from '../layouts/PageLayout.astro';
 import FallbackNote from '../components/FallbackNote.astro';
 import YouTube from '../components/YouTube.astro';
 import { localizePath, useTranslations, type Lang } from '../i18n';
 import type { UiKey } from '../i18n/en';
-import { formatDate, getCourseText, isPlaceholder } from '../lib/content';
+import { marked } from 'marked';
+import { formatDate, isPlaceholder } from '../lib/content';
 import { publicUrl } from '../lib/files';
 
 interface Props {
@@ -23,8 +24,9 @@ const { lang, course } = Astro.props;
 const c = course.data;
 const t = useTranslations(lang);
 const other: Lang = lang === 'en' ? 'uz' : 'en';
-const { entry: text, fallback } = await getCourseText(course.id, lang);
-const { Content } = await render(text);
+// Description is Markdown in course.yaml; fall back to English if the Uzbek one is empty.
+const fallback = lang !== 'en' && !c.description[lang].trim() && !!c.description.en.trim();
+const descriptionHtml = await marked.parse(fallback ? c.description.en : c.description[lang]);
 const facts = [
   ['course.level', c.level[lang]],
   ['course.language', t(`teachLang.${c.language}`)],
@@ -88,9 +90,11 @@ const watch = (id: string) => `https://www.youtube.com/watch?v=${id}`;
             {t('course.about')}
             <FallbackNote lang={lang} show={fallback} />
           </h2>
-          <div class="prose" lang={fallback ? 'en' : lang}>
-            <Content />
-          </div>
+          <div
+            class:list={['prose', { placeholder: isPlaceholder(descriptionHtml) }]}
+            lang={fallback ? 'en' : lang}
+            set:html={descriptionHtml}
+          />
           {c.syllabus ? (
             <a class="btn btn--primary" href={publicUrl(c.syllabus)} download>
               {t('course.syllabus')}
@@ -420,6 +424,14 @@ const watch = (id: string) => `https://www.youtube.com/watch?v=${id}`;
   .about h2 {
     margin-bottom: 16px;
     font-size: 1.625rem;
+  }
+  .prose :global(p + p),
+  .prose :global(ul),
+  .prose :global(ol) {
+    margin-top: 12px;
+  }
+  .prose.placeholder {
+    color: var(--muted);
   }
   .prose {
     margin-bottom: 24px;

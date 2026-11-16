@@ -33,13 +33,15 @@ after each phase run `npm run check && npm run build`, list what to look at, com
 
 ### Content (schemas in `src/content.config.ts`, helpers in `src/lib/content.ts`)
 
-| Collection               | Files                                                                                                                                            |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `about`                  | `src/content/about/{en,uz}.md` — bio (body) + timeline, interests, beyond, achievements                                                          |
-| `pages`                  | `src/content/pages/<home\|research\|publications\|projects\|teaching\|contact>/{en,uz}.md` — intro (body), meta description, page-specific lists |
-| `research`               | `src/content/research/{en,uz}/NN-name.md` — `order`, `title`, `tag` (matches BibTeX `themes`)                                                    |
-| `projects`               | `src/content/projects/<name>.yaml` — bilingual fields inside one file                                                                            |
-| `courses` + `courseText` | `src/content/courses/<slug>/course.yaml` + `{en,uz}.md`                                                                                          |
+| Collection | Files                                                                                                                                            |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `about`    | `src/content/about/{en,uz}.md` — bio (body) + timeline, interests, beyond, achievements                                                          |
+| `pages`    | `src/content/pages/<home\|research\|publications\|projects\|teaching\|contact>/{en,uz}.md` — intro (body), meta description, page-specific lists |
+| `research` | `src/content/research/{en,uz}/NN-name.md` — `order`, `title`, `tag` (matches BibTeX `themes`)                                                    |
+| `projects` | `src/content/projects/<name>.yaml` — bilingual fields inside one file                                                                            |
+| `courses`  | `src/content/courses/<slug>/course.yaml` — everything incl. `description: {en, uz}` (Markdown), covers next to it                                |
+| `talks`    | `src/content/talks/<name>.yaml` (page in Phase 8)                                                                                                |
+| `notes`    | `src/content/notes/{en,uz}/<name>.md` (page in Phase 8)                                                                                          |
 
 - Missing Uzbek file → English is used and `<FallbackNote>` shows "(inglizça)"; wrap the text in `lang="en"`.
 - Text containing `[...]` is a placeholder: `isPlaceholder()` styles it muted/dashed.
@@ -53,6 +55,13 @@ after each phase run `npm run check && npm run build`, list what to look at, com
   link to an ID, cover images via `image()` relative to the yaml). Course page tabs are `#anchor` links:
   stacked sections without JS, one panel at a time with JS (`aria-current` on the active tab).
   `YouTube.astro` = thumbnail facade; iframe from youtube-nocookie.com only after click.
+- Admin panel: Sveltia CMS, `public/admin/index.html` (version pinned) + `public/admin/config.yml`.
+  Token sign-in only (`auth_methods: [token]`). Any content field added to `src/content.config.ts` or
+  `profile.yaml` must also be added to `config.yml`. Uploaded paths start with `/` — schemas strip it.
+  Dev: open `/admin/index.html` (Astro dev doesn't serve folder index files in `public/`).
+- Uzbek converter: `npm run uz -- <path>` (`scripts/uz-new-alphabet.mjs`, tests `npm run test:uz`,
+  word exceptions in `scripts/uz-new-alphabet-ignore.txt`). Run `npm run uz -- --dry-run --all <file>`
+  on any Uzbek text you write — it catches old-alphabet slips.
 - Pages for later phases (`research/tools`, `research/talks`, `notes`) use `src/views/SectionStub.astro`.
 
 Every page exists in both languages. Links always go through `localizePath(lang, route)`;

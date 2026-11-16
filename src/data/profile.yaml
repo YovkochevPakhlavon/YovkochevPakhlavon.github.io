@@ -38,6 +38,12 @@ bibtexNames:
   - Yovqochev
   - Yovqoçev
 
+# Portrait: an image file in src/assets/ (Astro makes optimized versions). '' = placeholder.
+portrait: ''
+
+# CV: a PDF in public/files/. "Download CV" buttons and /cv point here.
+cv: files/cv.pdf
+
 # Professional email. Empty until you fill it in (see TODO-CONTENT.md).
 email: ''
 

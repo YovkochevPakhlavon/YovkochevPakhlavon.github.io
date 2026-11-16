@@ -37,6 +37,18 @@ const ProfileSchema = z.object({
   bibtexNames: z
     .array(text('bibtexNames item'))
     .min(1, '"bibtexNames" needs at least one family name, e.g. Yovkochev'),
+  /** File name (or path) of the portrait inside src/assets/; '' = placeholder. */
+  portrait: z
+    .string()
+    .trim()
+    .default('')
+    .transform((p) => p.split('/').pop() ?? ''),
+  /** CV PDF inside public/, e.g. files/cv.pdf (a leading "/" is removed). */
+  cv: z
+    .string()
+    .trim()
+    .default('files/cv.pdf')
+    .transform((p) => p.replace(/^\/+/, '').replace(/^public\//, '')),
   email: z.union([z.literal(''), z.email({ error: '"email" must be an email address or \'\'' })]),
   links: z.object({
     orcid: optionalUrl('orcid'),

@@ -24,12 +24,15 @@ const urlOrEmpty = (what: string) =>
     .union([z.literal(''), z.url({ error: `${what} must be a full URL (https://…) or ''` })])
     .default('');
 
-/** A file in public/, written without "public/", e.g. "files/syllabus.pdf"; or ''. */
-const publicFile = (what: string) =>
+/**
+ * A file in public/, e.g. "files/syllabus.pdf" (a leading "/" or "public/" is removed,
+ * so paths written by the admin panel work too); or ''.
+ */
+const publicFile = (_what: string) =>
   z
     .string()
     .trim()
-    .regex(/^(|[^/].*)$/, `${what}: write the path without a leading "/", e.g. files/name.pdf`)
+    .transform((p) => p.replace(/^\/+/, '').replace(/^public\//, ''))
     .default('');
 
 /** Like publicFile, but the file must already exist in public/ (catches typos). */
@@ -179,6 +182,10 @@ const courses = defineCollection({
       language: z.enum(['uz', 'en']),
       semester: bilingual('semester'),
       hours: text('hours'),
+      /** Course description (Markdown), one per language. */
+      description: z
+        .object({ en: z.string().default(''), uz: z.string().default('') })
+        .default({ en: '', uz: '' }),
       syllabus: existingFile('syllabus'),
       lectures: z
         .array(
@@ -229,9 +236,36 @@ const courses = defineCollection({
     }),
 });
 
-const courseText = defineCollection({
-  loader: glob({ base: './src/content/courses', pattern: '*/{en,uz}.md' }),
-  schema: z.object({}),
+// ---------- Talks: src/content/talks/<name>.yaml (page in a later phase) ----------
+const talks = defineCollection({
+  loader: glob({ base: './src/content/talks', pattern: '*.yaml' }),
+  schema: z.object({
+    title: localText('title'),
+    kind: z
+      .enum(['talk', 'invited', 'poster', 'seminar'], {
+        error: 'kind must be talk, invited, poster or seminar',
+      })
+      .default('talk'),
+    event: text('event'),
+    city: text('city').default(''),
+    date: z.coerce.date({ error: 'date must be a date like 2026-05-14' }),
+    slides: existingFile('slides'),
+    poster: existingFile('poster'),
+    video: urlOrEmpty('video'),
+    url: urlOrEmpty('url'),
+  }),
 });
 
-export const collections = { about, pages, research, projects, courses, courseText };
+// ---------- Notes: src/content/notes/{en,uz}/<name>.md (page in a later phase) ----------
+const notes = defineCollection({
+  loader: glob({ base: './src/content/notes', pattern: '{en,uz}/*.md' }),
+  schema: z.object({
+    title: text('title'),
+    description: text('description').default(''),
+    date: z.coerce.date({ error: 'date must be a date like 2026-05-14' }),
+    tags: z.array(text('tags item')).default([]),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { about, pages, research, projects, courses, talks, notes };

@@ -1,6 +1,7 @@
 ---
 /**
- * Your portrait. Put a photo at src/assets/portrait.jpg (or .png/.webp) and Astro
+ * Your portrait. Upload it in the admin panel (Profile → Portrait) or put a photo at
+ * src/assets/portrait.jpg (or .png/.webp) and Astro
  * makes AVIF/WebP versions in the right sizes. Until then a placeholder is shown.
  */
 import { Picture } from 'astro:assets';
@@ -15,11 +16,20 @@ interface Props {
 const { lang, variant } = Astro.props;
 const t = useTranslations(lang);
 
-const found = import.meta.glob<{ default: ImageMetadata }>(
-  '../assets/portrait.{jpg,jpeg,png,webp,avif}',
-  { eager: true },
-);
-const image = Object.values(found)[0]?.default;
+// The file named in profile.yaml (`portrait`), else src/assets/portrait.*.
+const found = import.meta.glob<{ default: ImageMetadata }>('../assets/*.{jpg,jpeg,png,webp,avif}', {
+  eager: true,
+});
+const byName = (name: string) =>
+  Object.entries(found).find(([path]) => path.split('/').pop() === name)?.[1].default;
+const image =
+  (profile.portrait && byName(profile.portrait)) ||
+  Object.entries(found).find(([path]) => /\/portrait\.\w+$/.test(path))?.[1].default;
+if (profile.portrait && !byName(profile.portrait)) {
+  throw new Error(
+    `src/data/profile.yaml: portrait "${profile.portrait}" not found in src/assets/ (upload it or fix the name)`,
+  );
+}
 const alt = profile.name[lang];
 const sizes = variant === 'round' ? '120px' : '(max-width: 767px) 100vw, 340px';
 const widths = variant === 'round' ? [120, 240] : [340, 520, 680];

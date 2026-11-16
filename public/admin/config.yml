@@ -1,0 +1,411 @@
+# yaml-language-server: $schema=https://unpkg.com/@sveltia/cms@0.256.1/schema/sveltia-cms.json
+#
+# Admin panel (Sveltia CMS) for yovkochevpakhlavon.github.io — opened at /admin/.
+# Every "Save" commits to the main branch on GitHub; the site then rebuilds (about 2 minutes).
+# Field rules (required values, file checks) are enforced again by the build: see
+# src/content.config.ts. How to log in: EDITING.md.
+
+backend:
+  name: github
+  repo: YovkochevPakhlavon/YovkochevPakhlavon.github.io
+  branch: main
+  # Sign in with a GitHub token (no OAuth server needed). See EDITING.md.
+  auth_methods: [token]
+  commit_messages:
+    create: 'Add {{collection}} “{{slug}}” (admin)'
+    update: 'Update {{collection}} “{{slug}}” (admin)'
+    delete: 'Delete {{collection}} “{{slug}}” (admin)'
+    uploadMedia: 'Upload “{{path}}” (admin)'
+    deleteMedia: 'Delete “{{path}}” (admin)'
+
+site_url: https://yovkochevpakhlavon.github.io
+display_url: https://yovkochevpakhlavon.github.io
+
+# Uploads go to public/files/ and are linked as files/… on the site.
+media_folder: /public/files
+public_folder: /files
+
+output:
+  omit_empty_optional_fields: true
+
+i18n:
+  structure: multiple_folders
+  locales: [en, uz]
+  default_locale: en
+
+collections:
+  # ------------------------------------------------------------------ Profile
+  - name: settings
+    label: Profile
+    icon: person
+    files:
+      - name: profile
+        label: Profile — names, links, photo, CV
+        file: src/data/profile.yaml
+        format: yaml
+        fields:
+          - name: name
+            label: Full name
+            widget: object
+            fields: &bilingual
+              - { name: en, label: English, widget: string }
+              - { name: uz, label: Özbekça, widget: string }
+          - { name: shortName, label: Short name (logo), widget: object, fields: *bilingual }
+          - { name: position, label: Position, widget: object, fields: *bilingual }
+          - { name: department, label: Department, widget: object, fields: *bilingual }
+          - { name: institution, label: Institution, widget: object, fields: *bilingual }
+          - { name: location, label: Location, widget: object, fields: *bilingual }
+          - { name: degree, label: Degree, widget: object, fields: *bilingual }
+          - name: bibtexNames
+            label: Your family names in BibTeX (shown in bold)
+            widget: list
+          - name: portrait
+            label: Portrait photo
+            widget: image
+            required: false
+            media_folder: /src/assets
+            public_folder: /src/assets
+            hint: JPG or PNG, at least 700 px wide. Astro makes the small versions.
+          - name: cv
+            label: CV (PDF)
+            widget: file
+            required: false
+            media_folder: /public/files
+            public_folder: /files
+            hint: “Download CV” buttons and the /cv link point to this file.
+          - { name: email, label: Email, widget: string, required: false }
+          - name: links
+            label: Academic profiles (full URLs; empty ones are hidden)
+            widget: object
+            fields:
+              - { name: orcid, label: ORCID, widget: string, required: false }
+              - { name: scholar, label: Google Scholar, widget: string, required: false }
+              - { name: arxiv, label: arXiv, widget: string, required: false }
+              - { name: researchgate, label: ResearchGate, widget: string, required: false }
+              - { name: scopus, label: Scopus, widget: string, required: false }
+              - { name: github, label: GitHub, widget: string, required: false }
+          - name: formEndpoint
+            label: Contact form endpoint (e.g. Formspree URL; empty = email button)
+            widget: string
+            required: false
+
+  # ------------------------------------------------------------------ Publications
+  - name: publications
+    label: Publications
+    icon: menu_book
+    files:
+      - name: bibtex
+        label: publications.bib (all papers)
+        file: src/data/publications.bib
+        format: raw
+        fields:
+          - name: body
+            label: BibTeX
+            widget: code
+            output_code_only: true
+            default_language: bibtex
+            allow_language_selection: false
+            hint: >-
+              Paste a BibTeX entry and add pubtype = {journal|preprint|thesis|textbook},
+              status = {under-revision|submitted|accepted|published}, themes = {qpo, …}.
+              The comment at the top of the file explains every field.
+
+  # ------------------------------------------------------------------ Pages (en/uz)
+  - name: pages
+    label: Pages
+    icon: description
+    i18n: true
+    files:
+      - name: about
+        label: About
+        file: src/content/about/{{locale}}.md
+        i18n: true
+        fields:
+          - { name: title, label: Title, widget: string, i18n: true }
+          - { name: description, label: Description (search engines), widget: text, i18n: true }
+          - name: timeline
+            label: Academic path
+            widget: list
+            i18n: true
+            fields:
+              - { name: when, label: When, widget: string }
+              - { name: title, label: Title, widget: string }
+              - { name: place, label: Place, widget: string, required: false }
+          - { name: interests, label: Scientific interests, widget: list, i18n: true }
+          - { name: beyond, label: Beyond research, widget: list, i18n: true }
+          - name: achievements
+            label: Achievements
+            widget: list
+            i18n: true
+            fields:
+              - { name: year, label: Year, widget: string }
+              - { name: title, label: Title, widget: string }
+              - { name: text, label: Short text, widget: string, required: false }
+          - { name: body, label: Biography, widget: richtext, i18n: true }
+      - name: home
+        label: Home
+        file: src/content/pages/home/{{locale}}.md
+        i18n: true
+        fields:
+          - { name: title, label: Title, widget: string, i18n: true }
+          - { name: description, label: Description (search engines), widget: text, i18n: true }
+          - { name: statement, label: One-line research statement, widget: text, i18n: true }
+          - { name: chips, label: Topic chips, widget: list, i18n: true }
+      - name: research
+        label: Research (intro, methods, cards)
+        file: src/content/pages/research/{{locale}}.md
+        i18n: true
+        fields:
+          - { name: title, label: Title, widget: string, i18n: true }
+          - { name: description, label: Description (search engines), widget: text, i18n: true }
+          - { name: methods, label: Methods & tools, widget: list, i18n: true }
+          - name: cards
+            label: Cards (tools, talks, notes)
+            widget: list
+            i18n: true
+            fields:
+              - { name: route, label: Link (e.g. research/tools), widget: string }
+              - { name: label, label: Small label, widget: string }
+              - { name: title, label: Title, widget: string }
+              - { name: text, label: Text, widget: string }
+          - { name: body, label: Intro paragraph, widget: richtext, i18n: true }
+      - name: publications
+        label: Publications (intro)
+        file: src/content/pages/publications/{{locale}}.md
+        i18n: true
+        fields: &pageFields
+          - { name: title, label: Title, widget: string, i18n: true }
+          - { name: description, label: Description (search engines), widget: text, i18n: true }
+          - { name: body, label: Intro paragraph, widget: richtext, i18n: true }
+      - name: projects
+        label: Projects (intro)
+        file: src/content/pages/projects/{{locale}}.md
+        i18n: true
+        fields: *pageFields
+      - name: teaching
+        label: Teaching (intro, approach)
+        file: src/content/pages/teaching/{{locale}}.md
+        i18n: true
+        fields:
+          - { name: title, label: Title, widget: string, i18n: true }
+          - { name: description, label: Description (search engines), widget: text, i18n: true }
+          - { name: approach, label: Teaching approach, widget: text, i18n: true }
+          - { name: body, label: Intro paragraph, widget: richtext, i18n: true }
+      - name: contact
+        label: Contact (intro)
+        file: src/content/pages/contact/{{locale}}.md
+        i18n: true
+        fields: *pageFields
+
+  # ------------------------------------------------------------------ Research themes (en/uz)
+  - name: research
+    label: Research themes
+    label_singular: Research theme
+    icon: science
+    folder: src/content/research
+    i18n: true
+    create: true
+    slug: '{{tag}}'
+    summary: '{{order}} · {{title}}'
+    sortable_fields: [order, title]
+    fields:
+      - { name: order, label: Number (1, 2, 3…), widget: number, value_type: int, i18n: duplicate }
+      - { name: title, label: Title, widget: string, i18n: true }
+      - name: tag
+        label: Tag (used in publications.bib themes = {…})
+        widget: string
+        i18n: duplicate
+        pattern: ['^[a-z0-9-]+$', 'Lowercase letters, digits and “-” only, e.g. qpo']
+      - { name: body, label: Description, widget: richtext, i18n: true }
+
+  # ------------------------------------------------------------------ Projects
+  - name: projects
+    label: Projects
+    label_singular: Project
+    icon: code
+    folder: src/content/projects
+    extension: yaml
+    format: yaml
+    create: true
+    identifier_field: name
+    summary: '{{name}}'
+    fields:
+      - { name: name, label: Name, widget: string }
+      - { name: order, label: Order, widget: number, value_type: int, default: 10 }
+      - { name: featured, label: Featured (big card), widget: boolean, default: false }
+      - { name: language, label: Language, widget: string, required: false }
+      - { name: license, label: Licence, widget: string, required: false }
+      - name: description
+        label: Description
+        widget: object
+        fields:
+          - { name: en, label: English, widget: text }
+          - { name: uz, label: Özbekça, widget: text }
+      - { name: repo, label: Repository URL, widget: string, required: false }
+      - { name: docs, label: Documentation URL, widget: string, required: false }
+      - { name: tags, label: Tags, widget: list, required: false }
+      - name: roadmap
+        label: Roadmap
+        widget: list
+        required: false
+        fields:
+          - { name: version, label: Version, widget: string }
+          - name: state
+            label: State
+            widget: select
+            options: [done, in-progress, planned]
+          - { name: text, label: Text, widget: object, fields: *bilingual }
+      - name: terminal
+        label: 'Terminal block lines (“$ …” command, “#” spacer, “key: value”)'
+        widget: list
+        required: false
+
+  # ------------------------------------------------------------------ Courses
+  - name: courses
+    label: Courses
+    label_singular: Course
+    icon: school
+    folder: src/content/courses
+    path: '{{slug}}/course'
+    extension: yaml
+    format: yaml
+    create: true
+    slug: '{{title.en}}'
+    summary: '{{title.en}}'
+    # Cover images are stored next to course.yaml; PDFs in public/files/courses/<course>/.
+    media_folder: ''
+    public_folder: ''
+    fields:
+      - { name: order, label: Order, widget: number, value_type: int, default: 10 }
+      - { name: title, label: Title, widget: object, fields: *bilingual }
+      - { name: level, label: Level (e.g. 4th year / 4-kurs), widget: object, fields: *bilingual }
+      - name: language
+        label: Taught in
+        widget: select
+        options: [{ label: Uzbek, value: uz }, { label: English, value: en }]
+      - { name: semester, label: Semester, widget: object, fields: *bilingual }
+      - { name: hours, label: Hours, widget: string }
+      - name: description
+        label: Description
+        widget: object
+        fields:
+          - { name: en, label: English, widget: richtext, required: false }
+          - { name: uz, label: Özbekça, widget: richtext, required: false }
+      - name: syllabus
+        label: Syllabus (PDF)
+        widget: file
+        required: false
+        media_folder: /public/files/courses
+        public_folder: /files/courses
+      - name: lectures
+        label: Lectures
+        label_singular: Lecture
+        widget: list
+        required: false
+        fields:
+          - { name: title, label: Title, widget: string }
+          - name: pdf
+            label: PDF
+            widget: file
+            required: false
+            media_folder: /public/files/courses
+            public_folder: /files/courses
+          - name: slides
+            label: Slides
+            widget: file
+            required: false
+            media_folder: /public/files/courses
+            public_folder: /files/courses
+          - { name: video, label: YouTube link, widget: string, required: false }
+      - name: textbooks
+        label: Textbooks
+        label_singular: Textbook
+        widget: list
+        required: false
+        fields:
+          - { name: title, label: Title, widget: string }
+          - { name: authors, label: Authors, widget: string, required: false }
+          - { name: publisher, label: Publisher, widget: string, required: false }
+          - { name: year, label: Year, widget: string, required: false }
+          - { name: kind, label: Label (e.g. Darslik), widget: string, required: false }
+          - { name: cover, label: Cover image, widget: image, required: false }
+          - name: pdf
+            label: PDF
+            widget: file
+            required: false
+            media_folder: /public/files/courses
+            public_folder: /files/courses
+          - { name: url, label: Or a link, widget: string, required: false }
+      - name: videos
+        label: Video lessons
+        label_singular: Video
+        widget: list
+        required: false
+        fields:
+          - { name: title, label: Title, widget: string }
+          - { name: youtube, label: YouTube link, widget: string }
+          - { name: duration, label: Duration (e.g. 12:30), widget: string, required: false }
+      - name: assignments
+        label: Assignments
+        label_singular: Assignment
+        widget: list
+        required: false
+        fields:
+          - { name: title, label: Title, widget: string }
+          - { name: due, label: Due date, widget: datetime, type: date, required: false }
+          - name: file
+            label: File
+            widget: file
+            required: false
+            media_folder: /public/files/courses
+            public_folder: /files/courses
+          - { name: text, label: Short description, widget: string, required: false }
+
+  # ------------------------------------------------------------------ Talks
+  - name: talks
+    label: Talks & conferences
+    label_singular: Talk
+    icon: podium
+    folder: src/content/talks
+    extension: yaml
+    format: yaml
+    create: true
+    slug: "{{date | date('YYYY-MM-DD')}}-{{title}}"
+    summary: "{{date | date('YYYY-MM-DD')}} · {{title}}"
+    sortable_fields: [date, title]
+    fields:
+      - { name: title, label: Title, widget: string }
+      - name: kind
+        label: Type
+        widget: select
+        options: [talk, invited, poster, seminar]
+        default: talk
+      - { name: event, label: Event (conference, seminar), widget: string }
+      - { name: city, label: City, widget: string, required: false }
+      - { name: date, label: Date, widget: datetime, type: date }
+      - { name: slides, label: Slides (PDF), widget: file, required: false }
+      - { name: poster, label: Poster (PDF), widget: file, required: false }
+      - { name: video, label: Video URL, widget: string, required: false }
+      - { name: url, label: Event website, widget: string, required: false }
+
+  # ------------------------------------------------------------------ Notes (en/uz)
+  - name: notes
+    label: Notes
+    label_singular: Note
+    icon: edit_note
+    folder: src/content/notes
+    i18n: true
+    create: true
+    slug: '{{title}}'
+    summary: "{{date | date('YYYY-MM-DD')}} · {{title}}"
+    sortable_fields: [date, title]
+    fields:
+      - { name: title, label: Title, widget: string, i18n: true }
+      - { name: description, label: Short description, widget: text, required: false, i18n: true }
+      - { name: date, label: Date, widget: datetime, type: date, i18n: duplicate }
+      - { name: tags, label: Tags, widget: list, required: false, i18n: duplicate }
+      - { name: draft, label: Draft (hidden), widget: boolean, default: false, i18n: duplicate }
+      - name: body
+        label: Text (Markdown; math with $…$)
+        widget: richtext
+        i18n: true

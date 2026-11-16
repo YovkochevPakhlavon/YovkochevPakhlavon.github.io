@@ -33,9 +33,14 @@ The public URL is set in one place, `src/config/site.ts`.
 
 ## Editing content
 
-Everyday content lives in plain files (`src/data/profile.yaml` for names and links;
-more content folders arrive in later phases). An Uzbek step-by-step guide (`EDITING.md`)
-and a browser admin panel at `/admin` will be added in a later phase.
+Everyday content lives in plain files under `src/content/` and `src/data/`, and can be edited
+in the browser at **`/admin/`** ([Sveltia CMS](https://sveltiacms.app), GitHub token sign-in,
+no server needed). Step-by-step guide in Uzbek: [EDITING.md](EDITING.md).
+
+| Command                          | What it does                                                            |
+| -------------------------------- | ----------------------------------------------------------------------- |
+| `npm run uz -- <file or folder>` | Convert Uzbek text to the new Latin alphabet (shows a diff, asks first) |
+| `npm run test:uz`                | Tests for the converter                                                 |
 
 ## License
 

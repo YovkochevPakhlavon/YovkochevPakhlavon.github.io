@@ -1,4 +1,4 @@
-# Course settings. The course description is in en.md / uz.md next to this file.
+# Everything about this course is in this one file.
 # Lectures, textbooks, videos and assignments are listed at the bottom of this file.
 # Files go in public/files/ (write the path without "public/"); a wrong path stops the build
 # with a message, so a broken link can never reach the site.
@@ -14,6 +14,10 @@ semester:
   en: '[Semester]'
   uz: '[Semestr]'
 hours: '[Hours]'
+# Course description (Markdown: blank line = new paragraph, **bold**, - lists)
+description:
+  en: '[Course description: goals, what students learn, how they are assessed.]'
+  uz: '[Kurs tavsifi: maqsadlar, talabalar nimalarni örganadi, qanday baholanadi.]'
 syllabus: '' # e.g. files/research-fundamentals-syllabus.pdf
 
 # ---------------------------------------------------------------------------
@@ -24,13 +28,13 @@ syllabus: '' # e.g. files/research-fundamentals-syllabus.pdf
 #     video: https://youtu.be/VIDEO_ID       # any YouTube link or the 11-letter ID
 lectures: []
 
-# Textbooks — cover image goes next to this file, e.g. covers/book.jpg
+# Textbooks — the cover image goes next to this file
 #   - title: Book title
 #     authors: A. Author, B. Author
 #     publisher: Publisher, City
 #     year: 2020
 #     kind: { en: Textbook, uz: Darslik }    # optional label
-#     cover: ./covers/book.jpg
+#     cover: book.jpg                      # image file next to this course.yaml
 #     pdf: files/courses/research/book.pdf   # or  url: https://...
 textbooks: []
 
