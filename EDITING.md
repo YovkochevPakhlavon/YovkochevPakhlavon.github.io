@@ -315,13 +315,12 @@ Foydali buyruqlar:
 Hozir sayt `https://yovkochevpakhlavon.github.io/` manzilida. Öz domeningizga
 (masalan, `yovkochev.uz`) ötkaziş qisqaça:
 
-1. `src/config/site.ts` faylida `SITE_URL` ni yangi manzilga özgartiring.
-2. `public/CNAME` faylini yarating, içiga faqat domen: `yovkochev.uz`.
-3. Domen sotuvçisining DNS sozlamalarida GitHub Pages yozuvlarini qöşing
+1. Domen sotuvçisining DNS sozlamalarida GitHub Pages yozuvlarini qöşing
    (asosiy domen uçun A/AAAA, `www` uçun CNAME).
-4. GitHubda: repozitoriy → **Settings → Pages** → **Custom domain** va **Enforce HTTPS**.
+2. GitHubda: repozitoriy → **Settings → Pages** → **Custom domain** va **Enforce HTTPS**.
+3. `src/config/site.ts` faylida `SITE_URL` ni yangi manzilga özgartiring.
 
-Batafsil, qadam-baqadam qöllanma `DOMAIN.md` faylida böladi (keyingi bosqiçda qöşiladi).
+Batafsil, aniq DNS qiymatlari bilan qadam-baqadam qöllanma: [DOMAIN.md](DOMAIN.md).
 
 ---
 

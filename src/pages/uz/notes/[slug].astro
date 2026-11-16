@@ -1,0 +1,13 @@
+---
+import Note from '../../../views/Note.astro';
+import { getNotes } from '../../../lib/content';
+
+export async function getStaticPaths() {
+  const notes = await getNotes('uz');
+  return notes.map((n) => ({ params: { slug: n.slug }, props: n }));
+}
+
+const { slug, entry, fallback } = Astro.props;
+---
+
+<Note lang="uz" slug={slug} entry={entry} fallback={fallback} />

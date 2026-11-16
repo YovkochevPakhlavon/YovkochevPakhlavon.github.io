@@ -63,16 +63,23 @@ after each phase run `npm run check && npm run build`, list what to look at, com
   word exceptions in `scripts/uz-new-alphabet-ignore.txt`). Run `npm run uz -- --dry-run --all <file>`
   on any Uzbek text you write — it catches old-alphabet slips.
 - Home black hole: `src/scripts/blackhole/` (raw WebGL2, no library). `shaders.ts` ray-traces Schwarzschild
-  null geodesics (r_s = 1, ISCO 3, disk to 7.2, g³-style Doppler beaming); `index.ts` = runtime (DPR ≤ 1.5,
-  30 fps on coarse pointers, pause off-screen/hidden, one still frame with reduced motion, adaptive
-  resolution, onFail → CSS fallback). Loaded by Home.astro only at ≥ 768px after `load` + idle; the CSS
-  `BlackHole.astro` stays underneath until the first WebGL frame (`.orbit.is-webgl`).
+  null geodesics (r_s = 1, ISCO 3, disk to 7.2, g⁴ Doppler boost); `engine.ts` = renderer (DPR ≤ 1.5, fps cap,
+  reduced-motion still frame, adaptive resolution, async shader compile, software-WebGL → fail);
+  `worker.ts` runs it on an OffscreenCanvas (main thread never blocked); `index.ts` picks worker or
+  main thread and forwards size/visibility/pointer. Loaded by Home.astro only at ≥ 768px after `load` +
+  idle; the CSS `BlackHole.astro` stays until the first WebGL frame (`.orbit.is-webgl`) and is the fallback.
+- Notes: `/notes/` + `/notes/<slug>/` (Markdown/MDX, math via remark-math + rehype-katex configured with the
+  `unified()` processor in astro.config.mjs; KaTeX CSS linked only when a note has `$…$`). Drafts show only in dev;
+  `example-note.md` / `example-talk.yaml` are draft templates. Talks: `/research/talks/` grouped by year.
+- SEO: OG/Twitter meta in BaseLayout; OG PNGs generated at build (`src/lib/og.ts`, satori + sharp, site fonts)
+  at `/og/<lang>/<route>.png` — every new route must appear in `ogEntries()`. JSON-LD: Person (Home, About),
+  ScholarlyArticle (publications with DOI), BlogPosting (notes). Sitemap via @astrojs/sitemap (i18n),
+  robots.txt endpoint, analytics switch in `src/config/site.ts` (GoatCounter, off).
 - Interactive tools (`/research/tools`): physics in `src/physics/` (pure TS, Vitest: `npm test`), data in
   `src/data/eht-constraints.json` and `src/data/qpo-sources.json` (values copied from the cited papers —
   never from memory), UI `src/views/Tools.astro` + `src/scripts/tools/` (first view rendered at build time;
   `app.ts` loaded when visible; uPlot loaded only for the QPO chart). Custom metric slot: `custom` in
   `metrics.ts` (`visible: false` until filled). BlackPy cross-check: `scripts/compare-blackpy.md`.
-- Pages for later phases (`research/talks`, `notes`) use `src/views/SectionStub.astro`.
 
 Every page exists in both languages. Links always go through `localizePath(lang, route)`;
 never hard-code hostnames or `/uz/` prefixes. Pages are `trailingSlash: 'always'`.

@@ -1,0 +1,188 @@
+---
+/** One note (Markdown or MDX). KaTeX styles are linked only when the note contains math. */
+import { render, type CollectionEntry } from 'astro:content';
+import PageLayout from '../layouts/PageLayout.astro';
+import FallbackNote from '../components/FallbackNote.astro';
+import { localizePath, useTranslations, type Lang } from '../i18n';
+import { formatDate } from '../lib/content';
+import { hasMath, KATEX_CSS } from '../lib/katex';
+import { profile } from '../lib/profile';
+
+interface Props {
+  lang: Lang;
+  slug: string;
+  entry: CollectionEntry<'notes'>;
+  fallback: boolean;
+}
+const { lang, slug, entry, fallback } = Astro.props;
+const t = useTranslations(lang);
+const { Content } = await render(entry);
+const d = entry.data;
+const math = hasMath(entry.body);
+const contentLang = fallback ? 'en' : lang;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: d.title,
+  description: d.description || undefined,
+  datePublished: d.date.toISOString().slice(0, 10),
+  inLanguage: contentLang,
+  author: { '@type': 'Person', name: profile.name.en },
+  keywords: d.tags.length ? d.tags.join(', ') : undefined,
+};
+---
+
+<PageLayout
+  lang={lang}
+  current="research"
+  route={`notes/${slug}`}
+  title={d.title}
+  description={d.description || t('notes.intro')}
+  ogType="article"
+>
+  <Fragment slot="head">
+    {math && <link rel="stylesheet" href={KATEX_CSS} />}
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </Fragment>
+
+  <nav class="crumbs mono" aria-label={t('nav.breadcrumb')}>
+    <a href={localizePath(lang, 'notes')}>{t('notes.all')}</a>
+  </nav>
+
+  <article lang={contentLang}>
+    <header>
+      <p class="meta mono">
+        <time datetime={d.date.toISOString().slice(0, 10)}>{formatDate(d.date, lang)}</time>
+        {d.draft && <span class="draft">{t('notes.draft')}</span>}
+      </p>
+      <h1>
+        {d.title}
+        <FallbackNote lang={lang} show={fallback} />
+      </h1>
+      {d.description && <p class="lead">{d.description}</p>}
+      {d.tags.length > 0 && (
+        <ul class="chips" role="list">
+          {d.tags.map((tag) => (
+            <li class="chip">{tag}</li>
+          ))}
+        </ul>
+      )}
+    </header>
+    <div class="prose">
+      <Content />
+    </div>
+  </article>
+
+  <p class="back">
+    <a href={localizePath(lang, 'notes')}>← {t('notes.all')}</a>
+  </p>
+</PageLayout>
+
+<style>
+  .crumbs {
+    margin: -24px 0 32px;
+  }
+  .crumbs a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+  }
+  article {
+    max-width: 760px;
+  }
+  header {
+    margin-bottom: 40px;
+  }
+  .meta {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .draft {
+    color: var(--accent);
+  }
+  h1 {
+    margin-bottom: 16px;
+  }
+  .lead {
+    margin-bottom: 16px;
+  }
+
+  /* Article typography (Markdown output) */
+  .prose {
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: var(--text-2);
+  }
+  .prose :global(:where(p, ul, ol, blockquote, pre, table, figure, .katex-display)) {
+    margin: 0 0 1.1em;
+  }
+  .prose :global(h2) {
+    margin: 1.8em 0 0.6em;
+    font-size: 1.5rem;
+  }
+  .prose :global(h3) {
+    margin: 1.5em 0 0.5em;
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+  }
+  .prose :global(ul),
+  .prose :global(ol) {
+    padding-left: 1.4em;
+  }
+  .prose :global(li + li) {
+    margin-top: 0.3em;
+  }
+  .prose :global(blockquote) {
+    padding-left: 1em;
+    border-left: 2px solid var(--accent);
+    color: var(--text-3);
+  }
+  .prose :global(code) {
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    background: var(--surface-2);
+    font-size: 0.9em;
+  }
+  .prose :global(pre) {
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--code-bg);
+    overflow-x: auto;
+  }
+  .prose :global(pre code) {
+    padding: 0;
+    background: none;
+  }
+  .prose :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95em;
+  }
+  .prose :global(th),
+  .prose :global(td) {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+  }
+  .prose :global(img) {
+    border-radius: 10px;
+  }
+  .prose :global(.katex) {
+    color: var(--text);
+  }
+  .prose :global(.katex-display) {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px 0;
+  }
+  .back {
+    margin-top: 56px;
+  }
+  .back a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+  }
+</style>

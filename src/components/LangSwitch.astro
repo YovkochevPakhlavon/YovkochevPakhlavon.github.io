@@ -22,9 +22,9 @@ const options: { code: Lang; label: string }[] = [
       hreflang={o.code}
       lang={o.code}
       aria-current={o.code === lang ? 'true' : undefined}
-      aria-label={useTranslations(o.code)(`lang.${o.code}`)}
     >
       {o.label}
+      <span class="visually-hidden"> — {useTranslations(o.code)(`lang.${o.code}`)}</span>
     </a>
   ))}
 </div>

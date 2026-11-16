@@ -170,6 +170,22 @@ const en = {
   'qpo.table': 'Show values',
   'qpo.spherical': 'For spherically symmetric metrics ν_θ = ν_φ.',
 
+  // Notes & talks
+  'notes.intro': 'Short research and teaching notes.',
+  'notes.empty': 'No notes yet.',
+  'notes.all': 'All notes',
+  'notes.draft': 'Draft',
+  'talks.intro': 'Talks, posters and seminars, newest first.',
+  'talks.empty': 'No talks listed yet.',
+  'talks.kind.talk': 'Talk',
+  'talks.kind.invited': 'Invited talk',
+  'talks.kind.poster': 'Poster',
+  'talks.kind.seminar': 'Seminar',
+  'talks.slides': 'Slides',
+  'talks.poster': 'Poster',
+  'talks.video': 'Video',
+  'talks.website': 'Event',
+
   // Footer
   'footer.next': 'Next',
   'footer.home': 'Home',
@@ -178,7 +194,6 @@ const en = {
 
   // Misc
   'fallback.english': '(English)',
-  'page.later': 'This section arrives in a later phase.',
   'site.description':
     'theoretical physicist studying black holes surrounded by anisotropic matter, gravitational lensing and quasi-periodic oscillations.',
 

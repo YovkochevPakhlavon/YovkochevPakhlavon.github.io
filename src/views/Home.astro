@@ -14,6 +14,7 @@ import CvButton from '../components/CvButton.astro';
 import { PAGES, localizePath, useTranslations, type Lang } from '../i18n';
 import { profile } from '../lib/profile';
 import { getPageText } from '../lib/content';
+import { personJsonLd } from '../lib/seo';
 
 interface Props {
   lang: Lang;
@@ -45,7 +46,12 @@ const profileLinks = (
 ).filter(([, url]) => url);
 ---
 
-<BaseLayout lang={lang} route="" description={home.data.description}>
+<BaseLayout lang={lang} route="" description={home.data.description} ogType="profile">
+  <script
+    slot="head"
+    type="application/ld+json"
+    set:html={JSON.stringify(personJsonLd(lang, home.data.chips ?? []))}
+  />
   <header class="container container--home top">
     <Logo lang={lang} />
     <LangSwitch lang={lang} route="" />

@@ -1,0 +1,99 @@
+---
+/** /notes — research and teaching notes (src/content/notes/{en,uz}/), newest first. */
+import PageLayout from '../layouts/PageLayout.astro';
+import PageIntro from '../components/PageIntro.astro';
+import FallbackNote from '../components/FallbackNote.astro';
+import { localizePath, useTranslations, type Lang } from '../i18n';
+import { formatDate, getNotes } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const notes = await getNotes(lang);
+---
+
+<PageLayout
+  lang={lang}
+  current="research"
+  route="notes"
+  title={t('research.notes')}
+  description={t('notes.intro')}
+>
+  <PageIntro lang={lang} page="research" title={t('research.notes')}>
+    <p>{t('notes.intro')}</p>
+  </PageIntro>
+
+  {notes.length ? (
+    <ol class="notes" role="list">
+      {notes.map(({ slug, entry, fallback }) => (
+        <li lang={fallback ? 'en' : lang}>
+          <p class="meta mono">
+            <time datetime={entry.data.date.toISOString().slice(0, 10)}>
+              {formatDate(entry.data.date, lang)}
+            </time>
+            {entry.data.draft && <span class="draft">{t('notes.draft')}</span>}
+          </p>
+          <h2>
+            <a href={localizePath(lang, `notes/${slug}`)}>{entry.data.title}</a>
+            <FallbackNote lang={lang} show={fallback} />
+          </h2>
+          {entry.data.description && <p class="desc">{entry.data.description}</p>}
+          {entry.data.tags.length > 0 && (
+            <ul class="chips" role="list">
+              {entry.data.tags.map((tag) => (
+                <li class="chip">{tag}</li>
+              ))}
+            </ul>
+          )}
+        </li>
+      ))}
+    </ol>
+  ) : (
+    <p class="empty">{t('notes.empty')}</p>
+  )}
+</PageLayout>
+
+<style>
+  .notes {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+  .notes > li {
+    padding: 28px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .meta {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  .draft {
+    color: var(--accent);
+  }
+  h2 {
+    margin-bottom: 8px;
+    font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  }
+  h2 a {
+    color: var(--heading);
+    text-decoration: none;
+  }
+  h2 a:hover {
+    color: var(--accent-hi);
+    text-decoration: underline;
+  }
+  .desc {
+    margin-bottom: 12px;
+    color: var(--text-3);
+  }
+  .empty {
+    padding: 28px;
+    border: 1px dashed var(--line-3);
+    border-radius: var(--radius-card);
+    color: var(--muted);
+  }
+</style>

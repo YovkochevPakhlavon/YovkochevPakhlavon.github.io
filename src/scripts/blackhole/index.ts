@@ -1,15 +1,17 @@
 /**
- * Live WebGL2 black hole for the Home page (see shaders.ts for the physics).
+ * Live WebGL2 black hole for the Home page (physics in shaders.ts, rendering in engine.ts).
  *
  * - Loaded lazily by Home.astro after the page has loaded and the browser is idle.
+ * - Renders in a Web Worker on an OffscreenCanvas when the browser supports it, so the
+ *   page's main thread is never blocked; otherwise on the main thread.
  * - Device pixel ratio capped at 1.5; ~30 fps on touch devices, 60 fps otherwise.
  * - Pauses when the canvas is off-screen or the tab is hidden.
  * - prefers-reduced-motion: renders one still frame (redrawn only on resize).
  * - Lowers its resolution automatically if frames take too long.
- * - Any failure (no WebGL2, shader error, lost context) calls onFail, and the CSS
- *   black hole underneath simply stays visible.
+ * - No WebGL2, software-only WebGL, a shader error or a lost context → onFail, and the
+ *   CSS black hole underneath simply stays visible.
  */
-import { FRAGMENT, VERTEX } from './shaders';
+import { createEngine, type EngineState } from './engine';
 
 interface Options {
   /** Called after the first frame is on screen. */
@@ -19,151 +21,70 @@ interface Options {
 }
 
 const MAX_DPR = 1.5;
-const STILL_TIME = 14; // animation time used for the reduced-motion frame
-const QUALITY = [
-  { scale: 1.0, steps: 150 },
-  { scale: 0.85, steps: 130 },
-  { scale: 0.7, steps: 115 },
-  { scale: 0.55, steps: 100 },
-];
-
-function compile(gl: WebGL2RenderingContext, type: number, src: string) {
-  const s = gl.createShader(type)!;
-  gl.shaderSource(s, src);
-  gl.compileShader(s);
-  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
-    throw new Error(gl.getShaderInfoLog(s) ?? 'shader compile error');
-  }
-  return s;
-}
 
 export function mountBlackHole(
   canvas: HTMLCanvasElement,
   { onReady, onFail }: Options,
 ): () => void {
-  const gl = canvas.getContext('webgl2', {
-    alpha: true,
-    premultipliedAlpha: true,
-    antialias: false,
-    depth: false,
-    stencil: false,
-    powerPreference: 'default',
-  });
-  if (!gl) {
-    onFail();
-    return () => {};
-  }
-
-  let program: WebGLProgram;
-  try {
-    program = gl.createProgram()!;
-    gl.attachShader(program, compile(gl, gl.VERTEX_SHADER, VERTEX));
-    gl.attachShader(program, compile(gl, gl.FRAGMENT_SHADER, FRAGMENT));
-    gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      throw new Error(gl.getProgramInfoLog(program) ?? 'link error');
-    }
-  } catch (err) {
-    console.warn('[black hole] WebGL disabled:', err);
-    onFail();
-    return () => {};
-  }
-
-  // One triangle covering the screen.
-  const buf = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-  const loc = gl.getAttribLocation(program, 'aPos');
-  gl.enableVertexAttribArray(loc);
-  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-  gl.useProgram(program);
-  const uRes = gl.getUniformLocation(program, 'uRes');
-  const uTime = gl.getUniformLocation(program, 'uTime');
-  const uTilt = gl.getUniformLocation(program, 'uTilt');
-  const uSteps = gl.getUniformLocation(program, 'uSteps');
-
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const coarse = matchMedia('(pointer: coarse)');
-  const frameInterval = () => (coarse.matches ? 1000 / 30 : 1000 / 60);
-
-  let quality = 0;
   let visible = true;
-  let pageVisible = !document.hidden;
-  let raf = 0;
-  let last = 0;
-  let simTime = 0;
-  let ready = false;
-  let dead = false;
-  let slowFrames = 0;
-  const tilt = { x: 0, y: 0 };
+  let destroyed = false;
+
+  const state = (): EngineState => ({
+    cssW: canvas.clientWidth,
+    cssH: canvas.clientHeight,
+    dpr: Math.min(window.devicePixelRatio || 1, MAX_DPR),
+    running: visible && !document.hidden,
+    reduced: reduced.matches,
+    fps: coarse.matches ? 30 : 60,
+    target,
+  });
   const target = { x: 0, y: 0 };
 
-  function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR) * QUALITY[quality]!.scale;
-    const w = Math.max(1, Math.round(canvas.clientWidth * dpr));
-    const h = Math.max(1, Math.round(canvas.clientHeight * dpr));
-    if (canvas.width !== w || canvas.height !== h) {
-      canvas.width = w;
-      canvas.height = h;
-    }
-    gl!.viewport(0, 0, w, h);
-  }
+  // ------------------------------------------------------------ engine: worker or main
+  let send: (s: Partial<EngineState>) => void;
+  let stopEngine: () => void;
+  const failed = () => {
+    if (destroyed) return;
+    destroy();
+    onFail();
+  };
 
-  function draw(time: number) {
-    resize();
-    gl!.uniform2f(uRes, canvas.width, canvas.height);
-    gl!.uniform1f(uTime, time);
-    gl!.uniform2f(uTilt, tilt.x, tilt.y);
-    gl!.uniform1i(uSteps, QUALITY[quality]!.steps);
-    gl!.clearColor(0, 0, 0, 0);
-    gl!.clear(gl!.COLOR_BUFFER_BIT);
-    gl!.drawArrays(gl!.TRIANGLES, 0, 3);
-    if (!ready) {
-      ready = true;
-      requestAnimationFrame(() => onReady());
-    }
-  }
-
-  const running = () => !dead && visible && pageVisible && !reduced.matches;
-
-  function frame(now: number) {
-    raf = 0;
-    if (!running()) return;
-    raf = requestAnimationFrame(frame);
-    const elapsed = now - last;
-    const interval = frameInterval();
-    if (elapsed < interval - 2) return; // frame cap
-    // Adaptive quality: many slow frames in a row → lower resolution.
-    if (last && elapsed > interval * 1.8) {
-      if (++slowFrames > 20 && quality < QUALITY.length - 1) {
-        quality++;
-        slowFrames = 0;
+  if ('transferControlToOffscreen' in canvas && typeof Worker === 'function') {
+    const offscreen = canvas.transferControlToOffscreen();
+    const worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
+    worker.onmessage = (e: MessageEvent<{ type: 'ready' | 'fail'; reason?: string }>) => {
+      if (e.data.type === 'ready') onReady();
+      else {
+        console.info('[black hole] CSS fallback:', e.data.reason);
+        failed();
       }
-    } else {
-      slowFrames = Math.max(0, slowFrames - 1);
-    }
-    simTime += Math.min(elapsed, 100) / 1000;
-    last = now;
-    tilt.x += (target.x - tilt.x) * 0.06;
-    tilt.y += (target.y - tilt.y) * 0.06;
-    draw(simTime);
+    };
+    worker.onerror = () => failed();
+    worker.postMessage({ type: 'init', canvas: offscreen, state: state() }, [offscreen]);
+    send = (s) => worker.postMessage({ type: 'state', state: s });
+    stopEngine = () => worker.terminate();
+  } else {
+    const engine = createEngine(
+      canvas,
+      {
+        ready: onReady,
+        fail: (reason) => {
+          console.info('[black hole] CSS fallback:', reason);
+          failed();
+        },
+      },
+      requestAnimationFrame.bind(window),
+      cancelAnimationFrame.bind(window),
+    );
+    engine.update(state());
+    send = (s) => engine.update(s);
+    stopEngine = () => engine.destroy();
   }
 
-  function update() {
-    if (dead) return;
-    if (reduced.matches) {
-      cancelAnimationFrame(raf);
-      raf = 0;
-      tilt.x = tilt.y = 0;
-      draw(STILL_TIME);
-      return;
-    }
-    if (running() && !raf) {
-      last = 0;
-      raf = requestAnimationFrame(frame);
-    }
-  }
-
+  // ------------------------------------------------------------ page state → engine
+  let pending = 0;
   const onPointer = (e: PointerEvent) => {
     if (e.pointerType !== 'mouse') return;
     const r = canvas.getBoundingClientRect();
@@ -171,43 +92,38 @@ export function mountBlackHole(
     const dy = (e.clientY - (r.top + r.height / 2)) / (window.innerHeight / 2);
     target.x = Math.max(-1, Math.min(1, dx)) * 0.12; // ≈ ±7° yaw
     target.y = Math.max(-1, Math.min(1, dy)) * 0.07; // ≈ ±4° inclination
+    // At most one message per frame.
+    pending ||= requestAnimationFrame(() => {
+      pending = 0;
+      send({ target: { ...target } });
+    });
   };
-  const onVisibility = () => {
-    pageVisible = !document.hidden;
-    update();
-  };
+  const sync = () => send(state());
+  const onVisibility = () => sync();
   const io = new IntersectionObserver(([entry]) => {
     visible = !!entry?.isIntersecting;
-    update();
+    sync();
   });
-  const ro = new ResizeObserver(() => {
-    if (reduced.matches) draw(STILL_TIME);
-  });
-  const onLost = (e: Event) => {
-    e.preventDefault();
-    destroy();
-    onFail();
-  };
+  const ro = new ResizeObserver(() => sync());
 
   function destroy() {
-    dead = true;
-    cancelAnimationFrame(raf);
+    if (destroyed) return;
+    destroyed = true;
+    cancelAnimationFrame(pending);
     io.disconnect();
     ro.disconnect();
     window.removeEventListener('pointermove', onPointer);
     document.removeEventListener('visibilitychange', onVisibility);
-    reduced.removeEventListener('change', update);
+    reduced.removeEventListener('change', sync);
+    coarse.removeEventListener('change', sync);
+    stopEngine();
   }
 
   window.addEventListener('pointermove', onPointer, { passive: true });
   document.addEventListener('visibilitychange', onVisibility);
-  canvas.addEventListener('webglcontextlost', onLost);
-  reduced.addEventListener('change', update);
+  reduced.addEventListener('change', sync);
+  coarse.addEventListener('change', sync);
   io.observe(canvas);
   ro.observe(canvas);
-
-  // First frame right away (with reduced motion, update() draws the only still frame).
-  if (!reduced.matches) draw(0);
-  update();
   return destroy;
 }

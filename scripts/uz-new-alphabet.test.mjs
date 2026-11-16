@@ -39,6 +39,20 @@ test('English words, names, CamelCase and code are not touched', () => {
   );
 });
 
+test('bare domain names are not touched', () => {
+  assert.equal(
+    convertText('manzil yovkochevpakhlavon.github.io va chiroq.uz'),
+    'manzil yovkochevpakhlavon.github.io va chiroq.uz',
+  );
+});
+
+test('math is not touched', () => {
+  assert.equal(
+    convertText('shahar $R_{\\rm sh} = \\chi$ va $$\\sinh x$$'),
+    'şahar $R_{\\rm sh} = \\chi$ va $$\\sinh x$$',
+  );
+});
+
 test('symbols with subscripts are not touched', () => {
   assert.equal(
     convertText('Soya radiusi R_sh va r_ph, shahar'),

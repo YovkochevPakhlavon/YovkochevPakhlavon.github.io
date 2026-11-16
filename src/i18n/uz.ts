@@ -174,6 +174,22 @@ const uz: Record<UiKey, string> = {
   'qpo.table': 'Qiymatlarni körsatiş', // REVIEW
   'qpo.spherical': 'Sferik simmetrik metrikalarda ν_θ = ν_φ.', // REVIEW
 
+  // Notes & talks
+  'notes.intro': 'Qisqa ilmiy va öquv qaydlari.', // REVIEW
+  'notes.empty': 'Hozirça qaydlar yöq.', // REVIEW
+  'notes.all': 'Barça qaydlar', // REVIEW
+  'notes.draft': 'Qoralama', // REVIEW
+  'talks.intro': 'Maʼruzalar, posterlar va seminarlar — eng yangilari birinçi.', // REVIEW
+  'talks.empty': 'Hozirça çiqişlar qöşilmagan.', // REVIEW
+  'talks.kind.talk': 'Maʼruza', // REVIEW
+  'talks.kind.invited': 'Taklif etilgan maʼruza', // REVIEW
+  'talks.kind.poster': 'Poster', // REVIEW
+  'talks.kind.seminar': 'Seminar', // REVIEW
+  'talks.slides': 'Slaydlar', // REVIEW
+  'talks.poster': 'Poster', // REVIEW
+  'talks.video': 'Video', // REVIEW
+  'talks.website': 'Tadbir', // REVIEW
+
   // Footer
   'footer.next': 'Keyingi',
   'footer.home': 'Boş sahifa',
@@ -182,7 +198,6 @@ const uz: Record<UiKey, string> = {
 
   // Misc
   'fallback.english': '(inglizça)', // REVIEW
-  'page.later': 'Bu bölim keyingi bosqiçlardan birida qöşiladi.', // REVIEW
   'site.description':
     'anizotrop modda maydonlari bilan öralgan qora öralar, gravitatsion linzalaniş va kvaziperiodik tebranişlarni örganuvçi nazariy fizik.', // REVIEW
 

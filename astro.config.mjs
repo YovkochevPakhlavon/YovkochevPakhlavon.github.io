@@ -1,5 +1,10 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import mdx from '@astrojs/mdx';
+import sitemap from '@astrojs/sitemap';
+import { unified } from '@astrojs/markdown-remark';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import { readFileSync } from 'node:fs';
 import { parse } from 'yaml';
 import { SITE_URL } from './src/config/site.ts';
@@ -19,10 +24,26 @@ export default defineConfig({
   // Astro 7 defaults to 'jsx', which removes spaces between inline elements.
   // Keep normal HTML whitespace so text edited in content files renders as written.
   compressHTML: true,
+  // Page CSS is small (a few kB): inline it so nothing blocks the first paint.
+  build: { inlineStylesheets: 'always' },
   redirects: {
     '/cv': cv,
     '/uz/cv': cv,
   },
+  // Markdown and MDX: math with $…$ and $$…$$, rendered by KaTeX at build time.
+  markdown: {
+    processor: unified({
+      remarkPlugins: [remarkMath],
+      rehypePlugins: [[rehypeKatex, { output: 'htmlAndMathml', throwOnError: false }]],
+    }),
+  },
+  integrations: [
+    mdx(),
+    sitemap({
+      i18n: { defaultLocale: 'en', locales: { en: 'en', uz: 'uz' } },
+      filter: (page) => !/\/(cv|404)\/?$/.test(new URL(page).pathname),
+    }),
+  ],
   i18n: {
     locales: ['en', 'uz'],
     defaultLocale: 'en',

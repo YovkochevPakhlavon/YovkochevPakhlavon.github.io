@@ -13,9 +13,10 @@ interface Props {
   route?: string;
   title?: string;
   description?: string;
+  ogType?: 'website' | 'article' | 'profile';
 }
 
-const { lang, current, title, description } = Astro.props;
+const { lang, current, title, description, ogType } = Astro.props;
 const route = Astro.props.route ?? PAGES.find((p) => p.key === current)!.route;
 const t = useTranslations(lang);
 ---
@@ -25,6 +26,7 @@ const t = useTranslations(lang);
   route={route}
   title={title ?? t(`nav.${current}`)}
   description={description}
+  ogType={ogType}
 >
   <slot name="head" slot="head" />
   <Header lang={lang} current={current} route={route} />

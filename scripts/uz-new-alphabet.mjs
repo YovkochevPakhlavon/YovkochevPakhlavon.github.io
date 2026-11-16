@@ -11,7 +11,7 @@
  *   npm run uz -- --yes src/content              write without asking
  *   npm run uz -- --all path/file.md             treat the whole file as Uzbek text
  *
- * What is never changed: code (`…` and ``` blocks), URLs, e-mails, DOIs, file paths, R_sh-style symbols,
+ * What is never changed: code (`…` and ``` blocks), math ($…$, $$…$$), URLs, e-mails, DOIs, file paths, R_sh-style symbols,
  * HTML tags, Markdown link targets, YAML keys, BibTeX keys and field names, CamelCase
  * words (GitHub, BlackPy), words with w / c (Schwarzschild), and every word listed in
  * scripts/uz-new-alphabet-ignore.txt (English words, names such as Yovkochev).
@@ -83,10 +83,13 @@ const WORD = new RegExp(
 const PROTECT = [
   /```[\s\S]*?```/g, // fenced code
   /`[^`\n]*`/g, // inline code
+  /\$\$[\s\S]*?\$\$/g, // display math
+  /\$[^$\n]+\$/g, // inline math
   /<[^>\n]+>/g, // HTML tags
   /\]\([^)\n]*\)/g, // Markdown link targets
   /\b(?:https?:\/\/|www\.)[^\s)>\]"']+/g, // URLs
   /[\w.+-]+@[\w-]+\.[\w.-]+/g, // e-mails
+  /\b(?:[a-z0-9-]+\.)+(?:io|com|org|net|uz|edu|gov|dev|app|ru|de|info|xml|txt)\b/gi, // bare domains
   /\b10\.\d{4,9}\/[^\s"'<>{}]+/g, // DOIs
   /(?<![\p{L}\d])\.{0,2}\/?(?:[\w.-]+\/)+[\w.-]*/gu, // paths: files/a.pdf, research/tools
   /\{\{[^}]*\}\}/g, // template tags

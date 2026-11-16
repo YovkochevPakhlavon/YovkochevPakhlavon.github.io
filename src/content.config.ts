@@ -236,7 +236,7 @@ const courses = defineCollection({
     }),
 });
 
-// ---------- Talks: src/content/talks/<name>.yaml (page in a later phase) ----------
+// ---------- Talks: src/content/talks/<name>.yaml ----------
 const talks = defineCollection({
   loader: glob({ base: './src/content/talks', pattern: '*.yaml' }),
   schema: z.object({
@@ -253,12 +253,14 @@ const talks = defineCollection({
     poster: existingFile('poster'),
     video: urlOrEmpty('video'),
     url: urlOrEmpty('url'),
+    /** Drafts are shown only in `npm run dev`. */
+    draft: z.boolean().default(false),
   }),
 });
 
-// ---------- Notes: src/content/notes/{en,uz}/<name>.md (page in a later phase) ----------
+// ---------- Notes: src/content/notes/{en,uz}/<name>.md or .mdx (math: $…$, $$…$$) ----------
 const notes = defineCollection({
-  loader: glob({ base: './src/content/notes', pattern: '{en,uz}/*.md' }),
+  loader: glob({ base: './src/content/notes', pattern: '{en,uz}/*.{md,mdx}' }),
   schema: z.object({
     title: text('title'),
     description: text('description').default(''),

@@ -42,6 +42,14 @@ no server needed). Step-by-step guide in Uzbek: [EDITING.md](EDITING.md).
 | `npm run uz -- <file or folder>` | Convert Uzbek text to the new Latin alphabet (shows a diff, asks first) |
 | `npm test`                       | Unit tests: physics (Vitest) and the Uzbek converter                    |
 
+## SEO, analytics, domain
+
+- Open Graph images are generated at build time for every page (`/og/<lang>/<page>.png`).
+- `sitemap-index.xml` (with `hreflang` alternates) and `robots.txt` are generated from `src/config/site.ts`.
+- Analytics are off. To turn on privacy-friendly [GoatCounter](https://www.goatcounter.com) (no cookies),
+  set `ANALYTICS.enabled` and `ANALYTICS.goatcounter` in `src/config/site.ts`.
+- Moving to your own domain: [DOMAIN.md](DOMAIN.md) (Uzbek).
+
 ## License
 
 - Code: [MIT](LICENSE).

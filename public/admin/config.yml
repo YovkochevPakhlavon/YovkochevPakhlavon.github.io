@@ -392,6 +392,7 @@ collections:
       - { name: poster, label: Poster (PDF), widget: file, required: false }
       - { name: video, label: Video URL, widget: string, required: false }
       - { name: url, label: Event website, widget: string, required: false }
+      - { name: draft, label: Draft (hidden), widget: boolean, default: false }
 
   # ------------------------------------------------------------------ Notes (en/uz)
   - name: notes

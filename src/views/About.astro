@@ -7,6 +7,7 @@ import CvButton from '../components/CvButton.astro';
 import FallbackNote from '../components/FallbackNote.astro';
 import { eyebrow, useTranslations, type Lang } from '../i18n';
 import { getAbout, isPlaceholder } from '../lib/content';
+import { personJsonLd } from '../lib/seo';
 
 interface Props {
   lang: Lang;
@@ -19,7 +20,23 @@ const d = entry.data;
 const contentLang = fallback ? 'en' : lang;
 ---
 
-<PageLayout lang={lang} current="about" title={d.title} description={d.description}>
+<PageLayout
+  lang={lang}
+  current="about"
+  title={d.title}
+  description={d.description}
+  ogType="profile"
+>
+  <script
+    slot="head"
+    type="application/ld+json"
+    set:html={JSON.stringify(
+      personJsonLd(
+        lang,
+        d.interests.filter((i) => !isPlaceholder(i)),
+      ),
+    )}
+  />
   <div lang={contentLang}>
     <section class="hero">
       <div class="photo">

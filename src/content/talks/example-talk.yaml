@@ -1,0 +1,12 @@
+# Template for a talk (one file per talk). draft: true = shown only in `npm run dev`.
+# Copy this file to a new name, fill in the fields and set draft: false.
+title: '[Talk title]'
+kind: talk # talk | invited | poster | seminar
+event: '[Conference or seminar name]'
+city: '[City]'
+date: 2026-11-16
+slides: '' # e.g. files/talks/2026-slides.pdf
+poster: ''
+video: '' # full URL
+url: '' # event website
+draft: true

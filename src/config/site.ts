@@ -7,7 +7,11 @@
 export const SITE_URL = 'https://yovkochevpakhlavon.github.io';
 
 /**
- * Privacy-friendly analytics. Off by default.
- * The switch is wired up in a later phase; leave it `false` until then.
+ * Privacy-friendly analytics (GoatCounter: no cookies, no personal data). Off by default.
+ * To turn on: create a free site at https://www.goatcounter.com, put its code below
+ * (e.g. 'yovkochev' for yovkochev.goatcounter.com) and set enabled: true.
  */
-export const ANALYTICS_ENABLED = false;
+export const ANALYTICS = {
+  enabled: false,
+  goatcounter: '',
+};

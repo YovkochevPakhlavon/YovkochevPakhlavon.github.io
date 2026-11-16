@@ -1,0 +1,167 @@
+---
+/** /research/talks — talks, posters and seminars (src/content/talks/*.yaml), grouped by year. */
+import PageLayout from '../layouts/PageLayout.astro';
+import PageIntro from '../components/PageIntro.astro';
+import { localizePath, useTranslations, type Lang } from '../i18n';
+import { formatDate, getTalks } from '../lib/content';
+import { publicUrl } from '../lib/files';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const talks = await getTalks();
+const years = [...new Set(talks.map((x) => x.data.date.getUTCFullYear()))];
+---
+
+<PageLayout
+  lang={lang}
+  current="research"
+  route="research/talks"
+  title={t('research.talks')}
+  description={t('talks.intro')}
+>
+  <nav class="crumbs mono" aria-label={t('nav.breadcrumb')}>
+    <a href={localizePath(lang, 'research')}>{t('nav.research')}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{t('research.talks')}</span>
+  </nav>
+  <PageIntro lang={lang} page="research" title={t('research.talks')}>
+    <p>{t('talks.intro')}</p>
+  </PageIntro>
+
+  {talks.length === 0 && <p class="empty">{t('talks.empty')}</p>}
+  {years.map((year) => (
+    <section class="year" aria-labelledby={`y-${year}`}>
+      <h2 id={`y-${year}`} class="year-label">
+        {year}
+      </h2>
+      <ol class="list" role="list">
+        {talks
+          .filter((x) => x.data.date.getUTCFullYear() === year)
+          .map(({ data: d }) => (
+            <li class="talk">
+              <p class="meta mono">
+                <span class="kind">{t(`talks.kind.${d.kind}`)}</span>
+                <time datetime={d.date.toISOString().slice(0, 10)}>{formatDate(d.date, lang)}</time>
+              </p>
+              <h3>{d.title[lang]}</h3>
+              <p class="where">{[d.event, d.city].filter(Boolean).join(', ')}</p>
+              {(d.slides || d.poster || d.video || d.url) && (
+                <p class="links">
+                  {d.slides && (
+                    <a class="act" href={publicUrl(d.slides)}>
+                      {t('talks.slides')}
+                    </a>
+                  )}
+                  {d.poster && (
+                    <a class="act" href={publicUrl(d.poster)}>
+                      {t('talks.poster')}
+                    </a>
+                  )}
+                  {d.video && (
+                    <a class="act" href={d.video}>
+                      {t('talks.video')}
+                    </a>
+                  )}
+                  {d.url && (
+                    <a class="act" href={d.url}>
+                      {t('talks.website')} ↗
+                    </a>
+                  )}
+                </p>
+              )}
+            </li>
+          ))}
+      </ol>
+    </section>
+  ))}
+</PageLayout>
+
+<style>
+  .crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: -24px 0 32px;
+  }
+  .crumbs a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+  }
+  .empty {
+    padding: 28px;
+    border: 1px dashed var(--line-3);
+    border-radius: var(--radius-card);
+    color: var(--muted);
+  }
+  .year + .year {
+    margin-top: 40px;
+  }
+  .year-label {
+    margin-bottom: 16px;
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: var(--accent);
+  }
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .talk {
+    padding: clamp(20px, 3vw, 28px);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    margin-bottom: 8px;
+  }
+  .kind {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  h3 {
+    margin-bottom: 4px;
+    font-family: var(--font-heading);
+    font-size: 1.1875rem;
+    line-height: 1.35;
+  }
+  .where {
+    margin-bottom: 14px;
+    font-size: var(--fs-small);
+    color: var(--muted);
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .act {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    text-decoration: none;
+  }
+  .act:hover {
+    border-color: var(--accent);
+  }
+</style>

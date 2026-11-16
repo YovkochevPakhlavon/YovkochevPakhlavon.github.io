@@ -74,6 +74,14 @@ On the site, placeholders look like `[this]` and are shown in grey or with a das
 - [ ] Optional: export BlackPy reference values (`scripts/compare-blackpy.md`) and run `npm test`
 - [ ] Confirm the note "Formulas follow BlackPy" (it is shown on the page, as the spec asked)
 
+## Notes, talks, launch
+
+- [ ] First notes: copy `src/content/notes/en/example-note.md` (and `uz/`), or Notes → New Note in the admin panel
+- [ ] Talks and posters: copy `src/content/talks/example-talk.yaml` (one file per talk), or Talks → New Talk
+- [ ] Optional: turn on GoatCounter analytics in `src/config/site.ts`
+- [ ] After the first deploy: add the site to Google Search Console and submit `sitemap-index.xml`
+- [ ] Later: own domain — DOMAIN.md
+
 ## Uzbek text written by Claude — please check
 
 UI strings in `src/i18n/uz.ts` marked `// REVIEW` (menu labels, buttons, headings not in the SITE_SPEC
@@ -83,7 +91,8 @@ dictionary), plus all Uzbek page texts translated from English:
 - `src/content/pages/*/uz.md` — page intros, Home statement and chips, Research methods and cards
 - `src/content/research/uz/*.md` — theme descriptions (titles are from SITE_SPEC)
 - `src/content/projects/blackpy.yaml` — `uz:` description and roadmap
-- `EDITING.md` (the whole editing guide)
+- `EDITING.md` (the whole editing guide) and `DOMAIN.md`
+- `src/content/notes/uz/example-note.md` and the notes/talks strings in `src/i18n/uz.ts`
 - `src/content/pages/tools/uz.md` and the tools strings in `src/i18n/uz.ts` (`tools.*`, `shadow.*`, `qpo.*`)
 
 Points to check in particular:

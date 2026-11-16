@@ -86,3 +86,34 @@ export function formatDate(d: Date, lang: Lang): string {
     timeZone: 'UTC',
   });
 }
+
+// ---------------------------------------------------------------- notes & talks
+/** Note slug: "en/my-note" → "my-note". */
+export const noteSlug = (id: string) => id.replace(/^(en|uz)\//, '');
+
+const showDrafts = import.meta.env.DEV;
+
+/**
+ * Notes for a language, newest first. Uzbek pages also list English notes that have no
+ * Uzbek version (marked fallback: true).
+ */
+export async function getNotes(lang: Lang) {
+  const all = (await getCollection('notes')).filter((n) => showDrafts || !n.data.draft);
+  const bySlug = new Map<string, { entry: CollectionEntry<'notes'>; fallback: boolean }>();
+  for (const n of all) {
+    const slug = noteSlug(n.id);
+    const isOwn = n.id.startsWith(`${lang}/`);
+    const isDefault = n.id.startsWith(`${DEFAULT_LANG}/`);
+    if (isOwn) bySlug.set(slug, { entry: n, fallback: false });
+    else if (isDefault && !bySlug.has(slug)) bySlug.set(slug, { entry: n, fallback: true });
+  }
+  return [...bySlug.entries()]
+    .map(([slug, v]) => ({ slug, ...v }))
+    .sort((a, b) => b.entry.data.date.getTime() - a.entry.data.date.getTime());
+}
+
+/** Talks, newest first. */
+export async function getTalks() {
+  const all = (await getCollection('talks')).filter((x) => showDrafts || !x.data.draft);
+  return all.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+}
