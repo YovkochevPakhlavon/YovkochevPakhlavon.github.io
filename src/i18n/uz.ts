@@ -109,8 +109,19 @@ const uz: Record<UiKey, string> = {
   'course.language': 'til', // REVIEW
   'course.semester': 'semestr', // REVIEW
   'course.hours': 'soat', // REVIEW
-  'course.nextPhase':
-    'Maʼruzalar, darsliklar, video darslar va topşiriqlar keyingi bosqiçda qöşiladi.', // REVIEW
+  'course.tabsLabel': 'Kurs bölimlari', // REVIEW
+  'course.noLectures': 'Hozirça maʼruzalar qöşilmagan.', // REVIEW
+  'course.noBooks': 'Hozirça darsliklar qöşilmagan.', // REVIEW
+  'course.noVideos': 'Hozirça video darslar qöşilmagan.', // REVIEW
+  'course.noTasks': 'Hozirça topşiriqlar yöq.', // REVIEW
+  'course.slides': 'Slaydlar', // REVIEW
+  'course.video': 'Video', // REVIEW
+  'course.due': 'Muddat', // REVIEW
+  'course.download': 'PDF yuklab oliş', // REVIEW
+  'course.downloadFile': 'Yuklab oliş', // REVIEW
+  'course.open.link': 'Oçiş', // REVIEW
+  'course.cover': '[Muqova]', // REVIEW
+  'video.play': 'Videoni ijro etiş', // REVIEW
 
   // Contact
   'contact.title': 'Boğlaniş',

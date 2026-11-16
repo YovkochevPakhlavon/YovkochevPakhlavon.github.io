@@ -5,6 +5,8 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 
 /** Text that may contain a visible placeholder like "[MSc university]". */
 const text = (what: string) =>
@@ -29,6 +31,43 @@ const publicFile = (what: string) =>
     .trim()
     .regex(/^(|[^/].*)$/, `${what}: write the path without a leading "/", e.g. files/name.pdf`)
     .default('');
+
+/** Like publicFile, but the file must already exist in public/ (catches typos). */
+const existingFile = (what: string) =>
+  publicFile(what).superRefine((path, ctx) => {
+    if (path && !existsSync(join(process.cwd(), 'public', path))) {
+      ctx.addIssue({
+        code: 'custom',
+        message: `${what}: file not found: public/${path} (upload it to public/files/ or fix the path)`,
+      });
+    }
+  });
+
+/** Either one text for both languages, or { en, uz }. Always becomes { en, uz }. */
+const localText = (what: string) =>
+  z
+    .union([text(what), bilingual(what)], {
+      error: `${what} must be text, or have "en:" and "uz:" lines`,
+    })
+    .transform((v) => (typeof v === 'string' ? { en: v, uz: v } : v));
+
+/** A YouTube video ID or any YouTube link; stored as the 11-character video ID. */
+const youtube = (what: string) =>
+  z.string().transform((value, ctx) => {
+    const v = value.trim();
+    const m =
+      v.match(/^[\w-]{11}$/) ??
+      v.match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/|\/live\/)([\w-]{11})/);
+    const id = m?.[1] ?? m?.[0];
+    if (!id) {
+      ctx.addIssue({
+        code: 'custom',
+        message: `${what}: "${v}" is not a YouTube link or video ID (e.g. https://youtu.be/abcdefghijk)`,
+      });
+      return z.NEVER;
+    }
+    return id;
+  });
 
 // ---------- About: src/content/about/{en,uz}.md ----------
 const about = defineCollection({
@@ -131,16 +170,63 @@ const courses = defineCollection({
     pattern: '*/course.yaml',
     generateId: ({ entry }) => entry.split('/')[0]!,
   }),
-  schema: z.object({
-    order: z.number().int().default(100),
-    title: bilingual('title'),
-    level: bilingual('level'),
-    /** Language the course is taught in. */
-    language: z.enum(['uz', 'en']),
-    semester: bilingual('semester'),
-    hours: text('hours'),
-    syllabus: publicFile('syllabus'),
-  }),
+  schema: ({ image }) =>
+    z.object({
+      order: z.number().int().default(100),
+      title: bilingual('title'),
+      level: bilingual('level'),
+      /** Language the course is taught in. */
+      language: z.enum(['uz', 'en']),
+      semester: bilingual('semester'),
+      hours: text('hours'),
+      syllabus: existingFile('syllabus'),
+      lectures: z
+        .array(
+          z.object({
+            title: localText('lectures → title'),
+            pdf: existingFile('lectures → pdf'),
+            slides: existingFile('lectures → slides'),
+            video: youtube('lectures → video').optional(),
+          }),
+        )
+        .default([]),
+      textbooks: z
+        .array(
+          z.object({
+            title: text('textbooks → title'),
+            authors: text('textbooks → authors').default(''),
+            publisher: text('textbooks → publisher').default(''),
+            year: z.union([z.number().int(), text('textbooks → year')]).optional(),
+            kind: localText('textbooks → kind').optional(),
+            /** Image next to course.yaml, e.g. ./covers/book.jpg */
+            cover: image().optional(),
+            pdf: existingFile('textbooks → pdf'),
+            url: urlOrEmpty('textbooks → url'),
+          }),
+        )
+        .default([]),
+      videos: z
+        .array(
+          z.object({
+            title: localText('videos → title'),
+            youtube: youtube('videos → youtube'),
+            duration: text('videos → duration').default(''),
+          }),
+        )
+        .default([]),
+      assignments: z
+        .array(
+          z.object({
+            title: localText('assignments → title'),
+            due: z.coerce
+              .date({ error: 'assignments → due must be a date like 2026-12-01' })
+              .optional(),
+            file: existingFile('assignments → file'),
+            text: localText('assignments → text').optional(),
+          }),
+        )
+        .default([]),
+    }),
 });
 
 const courseText = defineCollection({

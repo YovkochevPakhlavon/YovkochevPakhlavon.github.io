@@ -1,14 +1,19 @@
 ---
 /**
- * One course page. Phase 2: breadcrumb, badges, title and the Overview.
- * Phase 4 adds the tabs: Lectures · Textbooks · Video lessons · Assignments.
+ * One course page, driven by src/content/courses/<slug>/course.yaml (+ en.md / uz.md).
+ * Tabs: Overview · Lectures · Textbooks · Video lessons · Assignments.
+ * The tabs are anchor links (#lectures …): without JavaScript all sections are shown one
+ * after another and the links jump to them; with JavaScript one section is shown at a time.
  */
 import { render, type CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
 import PageLayout from '../layouts/PageLayout.astro';
 import FallbackNote from '../components/FallbackNote.astro';
+import YouTube from '../components/YouTube.astro';
 import { localizePath, useTranslations, type Lang } from '../i18n';
-import { getCourseText, isPlaceholder } from '../lib/content';
-import { publicFileExists, publicUrl } from '../lib/files';
+import type { UiKey } from '../i18n/en';
+import { formatDate, getCourseText, isPlaceholder } from '../lib/content';
+import { publicUrl } from '../lib/files';
 
 interface Props {
   lang: Lang;
@@ -20,13 +25,22 @@ const t = useTranslations(lang);
 const other: Lang = lang === 'en' ? 'uz' : 'en';
 const { entry: text, fallback } = await getCourseText(course.id, lang);
 const { Content } = await render(text);
-const hasSyllabus = publicFileExists(c.syllabus);
 const facts = [
   ['course.level', c.level[lang]],
   ['course.language', t(`teachLang.${c.language}`)],
   ['course.semester', c.semester[lang]],
   ['course.hours', c.hours],
 ] as const;
+
+const tabs: { id: string; label: UiKey; count?: number }[] = [
+  { id: 'overview', label: 'course.overview' },
+  { id: 'lectures', label: 'course.lectures', count: c.lectures.length },
+  { id: 'textbooks', label: 'course.books', count: c.textbooks.length },
+  { id: 'videos', label: 'course.videos', count: c.videos.length },
+  { id: 'assignments', label: 'course.tasks', count: c.assignments.length },
+];
+const num = (i: number) => String(i + 1).padStart(2, '0');
+const watch = (id: string) => `https://www.youtube.com/watch?v=${id}`;
 ---
 
 <PageLayout
@@ -51,39 +65,229 @@ const facts = [
     {c.title[other]}
   </p>
 
-  <div class="tabs" aria-hidden="true">
-    <span class="tab is-active">{t('course.overview')}</span>
-  </div>
-
-  <div class="overview">
-    <div class="about">
-      <h2>
-        {t('course.about')}
-        <FallbackNote lang={lang} show={fallback} />
-      </h2>
-      <div class="prose" lang={fallback ? 'en' : lang}>
-        <Content />
-      </div>
-      {hasSyllabus ? (
-        <a class="btn btn--primary" href={publicUrl(c.syllabus)} download>
-          {t('course.syllabus')}
+  <div data-course-tabs>
+    <nav class="tabs" aria-label={t('course.tabsLabel')}>
+      {tabs.map((tab, i) => (
+        <a
+          class="tab"
+          href={`#${tab.id}`}
+          data-tab={tab.id}
+          aria-current={i === 0 ? 'true' : undefined}
+        >
+          {t(tab.label)}
+          {tab.count ? <span class="count">{tab.count}</span> : null}
         </a>
-      ) : (
-        <span class="btn missing">{t('course.syllabusMissing')}</span>
-      )}
-    </div>
-    <dl class="facts">
-      {facts.map(([k, v]) => (
-        <div>
-          <dt>{t(k)}</dt>
-          <dd class:list={{ placeholder: isPlaceholder(v) }}>{v}</dd>
-        </div>
       ))}
-    </dl>
-  </div>
+    </nav>
 
-  <p class="next-phase">{t('course.nextPhase')}</p>
+    <!-- Overview -->
+    <section id="overview" class="panel" data-panel tabindex="-1" aria-labelledby="h-overview">
+      <div class="overview">
+        <div class="about">
+          <h2 id="h-overview">
+            {t('course.about')}
+            <FallbackNote lang={lang} show={fallback} />
+          </h2>
+          <div class="prose" lang={fallback ? 'en' : lang}>
+            <Content />
+          </div>
+          {c.syllabus ? (
+            <a class="btn btn--primary" href={publicUrl(c.syllabus)} download>
+              {t('course.syllabus')}
+            </a>
+          ) : (
+            <span class="btn missing">{t('course.syllabusMissing')}</span>
+          )}
+        </div>
+        <dl class="facts">
+          {facts.map(([k, v]) => (
+            <div>
+              <dt>{t(k)}</dt>
+              <dd class:list={{ placeholder: isPlaceholder(v) }}>{v}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </section>
+
+    <!-- Lectures -->
+    <section id="lectures" class="panel" data-panel tabindex="-1" aria-labelledby="h-lectures">
+      <h2 id="h-lectures" class="panel-title">
+        {t('course.lectures')}
+      </h2>
+      {c.lectures.length ? (
+        <ol class="rows" role="list">
+          {c.lectures.map((l, i) => (
+            <li class="row">
+              <span class="n">{num(i)}</span>
+              <span class="row-title">{l.title[lang]}</span>
+              <span class="row-actions">
+                {l.pdf && (
+                  <a class="act" href={publicUrl(l.pdf)}>
+                    PDF
+                  </a>
+                )}
+                {l.slides && (
+                  <a class="act" href={publicUrl(l.slides)}>
+                    {t('course.slides')}
+                  </a>
+                )}
+                {l.video && (
+                  <a class="act" href={watch(l.video)}>
+                    {t('course.video')}
+                  </a>
+                )}
+              </span>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <p class="empty">{t('course.noLectures')}</p>
+      )}
+    </section>
+
+    <!-- Textbooks -->
+    <section id="textbooks" class="panel" data-panel tabindex="-1" aria-labelledby="h-textbooks">
+      <h2 id="h-textbooks" class="panel-title">
+        {t('course.books')}
+      </h2>
+      {c.textbooks.length ? (
+        <ul class="books" role="list">
+          {c.textbooks.map((b) => (
+            <li class="book">
+              {b.cover ? (
+                <Image src={b.cover} alt="" widths={[120, 240]} sizes="120px" class="cover" />
+              ) : (
+                <span class="cover cover--empty" aria-hidden="true">
+                  {t('course.cover')}
+                </span>
+              )}
+              <div class="book-info">
+                {b.kind && <p class="kind">{b.kind[lang]}</p>}
+                <h3>{b.title}</h3>
+                <p class="book-meta">
+                  {[b.authors, b.publisher, b.year].filter(Boolean).join(' · ')}
+                </p>
+                {b.pdf ? (
+                  <a href={publicUrl(b.pdf)} download class="book-link">
+                    {t('course.download')} →
+                  </a>
+                ) : (
+                  b.url && (
+                    <a href={b.url} class="book-link">
+                      {t('course.open.link')} →
+                    </a>
+                  )
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="empty">{t('course.noBooks')}</p>
+      )}
+    </section>
+
+    <!-- Videos -->
+    <section id="videos" class="panel" data-panel tabindex="-1" aria-labelledby="h-videos">
+      <h2 id="h-videos" class="panel-title">
+        {t('course.videos')}
+      </h2>
+      {c.videos.length ? (
+        <ul class="videos" role="list">
+          {c.videos.map((v, i) => (
+            <li>
+              <YouTube lang={lang} id={v.youtube} title={v.title[lang]} />
+              <p class="video-title">
+                <span class="n">{num(i)}</span>
+                {v.title[lang]}
+                {v.duration && <span class="mono">{v.duration}</span>}
+              </p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="empty">{t('course.noVideos')}</p>
+      )}
+    </section>
+
+    <!-- Assignments -->
+    <section
+      id="assignments"
+      class="panel"
+      data-panel
+      tabindex="-1"
+      aria-labelledby="h-assignments"
+    >
+      <h2 id="h-assignments" class="panel-title">
+        {t('course.tasks')}
+      </h2>
+      {c.assignments.length ? (
+        <ol class="rows" role="list">
+          {c.assignments.map((a, i) => (
+            <li class="row">
+              <span class="n">{num(i)}</span>
+              <span class="row-title">
+                {a.title[lang]}
+                {a.text && <span class="row-text">{a.text[lang]}</span>}
+              </span>
+              {a.due && (
+                <span class="due mono">
+                  {t('course.due')}:{' '}
+                  <time datetime={a.due.toISOString().slice(0, 10)}>{formatDate(a.due, lang)}</time>
+                </span>
+              )}
+              {a.file && (
+                <span class="row-actions">
+                  <a class="act" href={publicUrl(a.file)} download>
+                    {t('course.downloadFile')}
+                  </a>
+                </span>
+              )}
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <p class="empty">{t('course.noTasks')}</p>
+      )}
+    </section>
+  </div>
 </PageLayout>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-course-tabs]');
+  if (root) {
+    root.classList.add('is-tabbed');
+    const tabs = [...root.querySelectorAll<HTMLAnchorElement>('[data-tab]')];
+    const panels = [...root.querySelectorAll<HTMLElement>('[data-panel]')];
+    const ids = panels.map((p) => p.id);
+
+    const show = (id: string, focus: boolean) => {
+      const active = ids.includes(id) ? id : ids[0]!;
+      for (const p of panels) p.hidden = p.id !== active;
+      for (const tab of tabs) {
+        if (tab.dataset.tab === active) {
+          tab.setAttribute('aria-current', 'true');
+          // Keep the active tab visible when the tab bar scrolls sideways (phones).
+          const bar = tab.parentElement!;
+          bar.scrollLeft = tab.offsetLeft - (bar.clientWidth - tab.offsetWidth) / 2;
+        } else tab.removeAttribute('aria-current');
+      }
+      if (focus) panels.find((p) => p.id === active)?.focus({ preventScroll: true });
+    };
+
+    tabs.forEach((tab) =>
+      tab.addEventListener('click', (e) => {
+        e.preventDefault();
+        const id = tab.dataset.tab!;
+        history.pushState(null, '', id === ids[0] ? location.pathname + location.search : `#${id}`);
+        show(id, true);
+      }),
+    );
+    window.addEventListener('popstate', () => show(location.hash.slice(1), false));
+    show(location.hash.slice(1), false);
+  }
+</script>
 
 <style>
   .crumbs {
@@ -127,23 +331,83 @@ const facts = [
     font-style: italic;
     color: var(--muted);
   }
+
+  /* Tabs */
   .tabs {
+    position: sticky;
+    top: 0;
+    z-index: 1;
     display: flex;
     gap: 4px;
     margin-bottom: 40px;
     border-bottom: 1px solid var(--line);
+    background: var(--bg);
+    overflow-x: auto;
+    scrollbar-width: none;
   }
   .tab {
-    padding: 12px 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+    min-height: var(--tap);
+    padding: 0 18px;
     border-bottom: 2px solid transparent;
+    color: var(--text-2);
     font-size: var(--fs-small);
     font-weight: 500;
-    color: var(--text-2);
+    text-decoration: none;
+    white-space: nowrap;
   }
-  .tab.is-active {
+  .tab:hover {
+    color: var(--heading);
+  }
+  .is-tabbed .tab[aria-current='true'] {
     border-bottom-color: var(--accent);
     color: var(--heading);
   }
+  .count {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  .tab:focus-visible {
+    outline-offset: -2px;
+  }
+
+  /* Panels: stacked without JS, one at a time with JS */
+  .panel {
+    scroll-margin-top: 64px;
+  }
+  .panel:focus {
+    outline: none;
+  }
+  .panel + .panel {
+    margin-top: 64px;
+  }
+  .is-tabbed .panel + .panel {
+    margin-top: 0;
+  }
+  .panel-title {
+    margin-bottom: 20px;
+    font-size: 1.625rem;
+  }
+  .is-tabbed .panel-title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .empty {
+    padding: 24px;
+    border: 1px dashed var(--line-3);
+    border-radius: var(--radius-card);
+    color: var(--muted);
+  }
+
+  /* Overview */
   .overview {
     display: flex;
     flex-wrap: wrap;
@@ -191,9 +455,159 @@ const facts = [
   dd.placeholder {
     font-weight: 400;
   }
-  .next-phase {
-    margin-top: 56px;
-    color: var(--muted);
+
+  /* Lectures & assignments rows */
+  .rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 32px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .n {
+    flex: 0 0 48px;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--accent);
+  }
+  .row-title {
+    flex: 1 1 420px;
+    min-width: 0;
+    font-size: 1.0625rem;
+  }
+  .row-text {
+    display: block;
+    margin-top: 4px;
     font-size: var(--fs-small);
+    color: var(--muted);
+  }
+  .row-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .act {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    text-decoration: none;
+  }
+  .act:hover {
+    border-color: var(--accent);
+    color: var(--heading);
+  }
+  .due {
+    flex: none;
+  }
+
+  /* Textbooks */
+  .books {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr));
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .book {
+    display: flex;
+    gap: 24px;
+    padding: 24px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+  }
+  .book :global(.cover),
+  .cover--empty {
+    flex: 0 0 120px;
+    width: 120px;
+    height: 160px;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+  .cover--empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--line-3);
+    color: var(--muted);
+    font-size: var(--fs-mono);
+  }
+  .book-info {
+    min-width: 0;
+  }
+  .kind {
+    margin-bottom: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+  }
+  .book h3 {
+    margin-bottom: 6px;
+    font-family: var(--font-heading);
+    font-size: 1.1875rem;
+    line-height: 1.3;
+  }
+  .book-meta {
+    margin-bottom: 12px;
+    font-size: var(--fs-small);
+    color: var(--muted);
+  }
+  .book-link {
+    font-size: var(--fs-small);
+    font-weight: 500;
+  }
+
+  /* Videos */
+  .videos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+    gap: 28px 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .video-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+    margin-top: 12px;
+    font-weight: 500;
+  }
+  .video-title .n {
+    flex: none;
+  }
+  .video-title .mono {
+    margin-left: auto;
+  }
+
+  @media (max-width: 767px) {
+    .book {
+      gap: 16px;
+      padding: 18px;
+    }
+    .book :global(.cover),
+    .cover--empty {
+      flex-basis: 88px;
+      width: 88px;
+      height: 118px;
+    }
+    .n {
+      flex-basis: 32px;
+    }
   }
 </style>

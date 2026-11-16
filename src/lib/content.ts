@@ -65,3 +65,30 @@ export const getCourseText = (slug: string, lang: Lang) =>
 /** True when a text is (or contains) a visible placeholder such as "[MSc university]". */
 export const isPlaceholder = (value: string | undefined | null): boolean =>
   !value || /\[[^\]]+\]/.test(value);
+
+const UZ_MONTHS = [
+  'yanvar',
+  'fevral',
+  'mart',
+  'aprel',
+  'may',
+  'iyun',
+  'iyul',
+  'avgust',
+  'sentabr',
+  'oktabr',
+  'noyabr',
+  'dekabr',
+];
+
+/** "1 Dec 2026" / "2026-yil 1-dekabr" (fixed spelling, not browser-dependent). */
+export function formatDate(d: Date, lang: Lang): string {
+  if (lang === 'uz')
+    return `${d.getUTCFullYear()}-yil ${d.getUTCDate()}-${UZ_MONTHS[d.getUTCMonth()]}`;
+  return d.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'UTC',
+  });
+}

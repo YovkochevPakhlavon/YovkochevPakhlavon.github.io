@@ -16,7 +16,12 @@ const other: Lang = lang === 'en' ? 'uz' : 'en';
 const { entry: page, fallback } = await getPageText('teaching', lang);
 const { Content: Intro } = await render(page);
 const courses = await getCourses();
-const sections = ['course.lectures', 'course.books', 'course.videos', 'course.tasks'] as const;
+const sections = [
+  ['course.lectures', 'lectures'],
+  ['course.books', 'textbooks'],
+  ['course.videos', 'videos'],
+  ['course.tasks', 'assignments'],
+] as const;
 ---
 
 <PageLayout
@@ -44,8 +49,11 @@ const sections = ['course.lectures', 'course.books', 'course.videos', 'course.ta
           {c.title[other]}
         </span>
         <span class="parts mono">
-          {sections.map((k) => (
-            <span>{t(k).toLocaleLowerCase(lang)}</span>
+          {sections.map(([k, field]) => (
+            <span>
+              {t(k).toLocaleLowerCase(lang)}
+              {c[field].length > 0 && <span class="n">{c[field].length}</span>}
+            </span>
           ))}
         </span>
         <span class="open">{t('course.open')} →</span>
@@ -132,6 +140,10 @@ const sections = ['course.lectures', 'course.books', 'course.videos', 'course.ta
     flex-wrap: wrap;
     gap: 8px 20px;
     color: var(--text-2);
+  }
+  .parts .n {
+    margin-left: 6px;
+    color: var(--accent);
   }
   .open {
     margin-top: 8px;

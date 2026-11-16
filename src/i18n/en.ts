@@ -105,8 +105,19 @@ const en = {
   'course.language': 'language',
   'course.semester': 'semester',
   'course.hours': 'hours',
-  'course.nextPhase':
-    'Lectures, textbooks, video lessons and assignments are added in the next phase.',
+  'course.tabsLabel': 'Course sections',
+  'course.noLectures': 'No lectures added yet.',
+  'course.noBooks': 'No textbooks added yet.',
+  'course.noVideos': 'No video lessons added yet.',
+  'course.noTasks': 'No assignments yet.',
+  'course.slides': 'Slides',
+  'course.video': 'Video',
+  'course.due': 'Due',
+  'course.download': 'Download PDF',
+  'course.downloadFile': 'Download',
+  'course.open.link': 'Open',
+  'course.cover': '[Cover]',
+  'video.play': 'Play video',
 
   // Contact
   'contact.title': 'Get in touch',

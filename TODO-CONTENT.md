@@ -58,6 +58,8 @@ On the site, placeholders look like `[this]` and are shown in grey or with a das
 - [ ] Course description (`en.md`, `uz.md`)
 - [ ] Semester and hours (`course.yaml`)
 - [ ] Syllabus PDF → `public/files/…`, then set `syllabus:` in `course.yaml`
+- [ ] Lectures, textbooks, video lessons and assignments — add them at the bottom of `course.yaml`
+      (commented examples there; files go in `public/files/`, covers next to `course.yaml`)
 - [ ] Other courses (one folder each), or remove the "[Another course]" card
 - [ ] "Teaching approach" text (`approach:` in `pages/teaching/en.md` and `uz.md`)
 

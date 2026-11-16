@@ -49,6 +49,10 @@ after each phase run `npm run check && npm run build`, list what to look at, com
   clean BibTeX without website fields) → `src/views/Publications.astro`; downloads at `/publications/all.bib`
   and `/publications/bib/<key>.bib`. Parser `@retorquere/bibtex-parser/js`: its `sentenceCase: false` is
   overridden by its own defaults, so titles use `fieldMode: { title: 'richtext' }` to keep the author's casing.
+- Courses: everything in `course.yaml` (schema checks that listed files exist in `public/`, parses any YouTube
+  link to an ID, cover images via `image()` relative to the yaml). Course page tabs are `#anchor` links:
+  stacked sections without JS, one panel at a time with JS (`aria-current` on the active tab).
+  `YouTube.astro` = thumbnail facade; iframe from youtube-nocookie.com only after click.
 - Pages for later phases (`research/tools`, `research/talks`, `notes`) use `src/views/SectionStub.astro`.
 
 Every page exists in both languages. Links always go through `localizePath(lang, route)`;
