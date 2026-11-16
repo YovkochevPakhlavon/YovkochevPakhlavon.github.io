@@ -67,7 +67,12 @@ after each phase run `npm run check && npm run build`, list what to look at, com
   30 fps on coarse pointers, pause off-screen/hidden, one still frame with reduced motion, adaptive
   resolution, onFail → CSS fallback). Loaded by Home.astro only at ≥ 768px after `load` + idle; the CSS
   `BlackHole.astro` stays underneath until the first WebGL frame (`.orbit.is-webgl`).
-- Pages for later phases (`research/tools`, `research/talks`, `notes`) use `src/views/SectionStub.astro`.
+- Interactive tools (`/research/tools`): physics in `src/physics/` (pure TS, Vitest: `npm test`), data in
+  `src/data/eht-constraints.json` and `src/data/qpo-sources.json` (values copied from the cited papers —
+  never from memory), UI `src/views/Tools.astro` + `src/scripts/tools/` (first view rendered at build time;
+  `app.ts` loaded when visible; uPlot loaded only for the QPO chart). Custom metric slot: `custom` in
+  `metrics.ts` (`visible: false` until filled). BlackPy cross-check: `scripts/compare-blackpy.md`.
+- Pages for later phases (`research/talks`, `notes`) use `src/views/SectionStub.astro`.
 
 Every page exists in both languages. Links always go through `localizePath(lang, route)`;
 never hard-code hostnames or `/uz/` prefixes. Pages are `trailingSlash: 'always'`.

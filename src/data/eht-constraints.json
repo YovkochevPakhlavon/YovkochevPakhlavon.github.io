@@ -1,0 +1,39 @@
+{
+  "_about": "EHT shadow-size constraints shown by the shadow calculator (src/views/Tools.astro). Values are copied from the cited papers; edit only from a paper. r_sh is the shadow radius in units of the black-hole mass M (G = c = 1); Schwarzschild: 3√3 ≈ 5.196.",
+  "constraints": [
+    {
+      "id": "m87",
+      "name": "M87*",
+      "sigma1": [4.31, 6.08],
+      "sigma2": null,
+      "basis": "δ = −0.01 ± 0.17 (68 %), i.e. r_sh/M = 3√3 (1 ± 0.17)",
+      "refs": [
+        {
+          "label": "EHT Collaboration (2019), ApJL 875, L6 — Paper VI",
+          "url": "https://doi.org/10.3847/2041-8213/ab1141"
+        },
+        {
+          "label": "Kocherlakota et al. & EHT Collaboration (2021), PRD 103, 104047 — Eq. (14)",
+          "url": "https://doi.org/10.1103/PhysRevD.103.104047"
+        }
+      ]
+    },
+    {
+      "id": "sgra",
+      "name": "Sgr A*",
+      "sigma1": [4.55, 5.22],
+      "sigma2": [4.21, 5.56],
+      "basis": "Keck δ = −0.04 (+0.09 −0.10), VLTI δ = −0.08 ± 0.09; averaged δ ≈ −0.060 ± 0.065",
+      "refs": [
+        {
+          "label": "EHT Collaboration (2022), ApJL 930, L17 — Sgr A* Paper VI",
+          "url": "https://doi.org/10.3847/2041-8213/ac6756"
+        },
+        {
+          "label": "Vagnozzi et al. (2023), CQG 40, 165007 — Eqs. (5)–(8)",
+          "url": "https://doi.org/10.1088/1361-6382/acd97b"
+        }
+      ]
+    }
+  ]
+}

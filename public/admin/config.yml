@@ -169,14 +169,19 @@ collections:
               - { name: title, label: Title, widget: string }
               - { name: text, label: Text, widget: string }
           - { name: body, label: Intro paragraph, widget: richtext, i18n: true }
-      - name: publications
-        label: Publications (intro)
-        file: src/content/pages/publications/{{locale}}.md
+      - name: tools
+        label: Interactive tools (intro)
+        file: src/content/pages/tools/{{locale}}.md
         i18n: true
         fields: &pageFields
           - { name: title, label: Title, widget: string, i18n: true }
           - { name: description, label: Description (search engines), widget: text, i18n: true }
           - { name: body, label: Intro paragraph, widget: richtext, i18n: true }
+      - name: publications
+        label: Publications (intro)
+        file: src/content/pages/publications/{{locale}}.md
+        i18n: true
+        fields: *pageFields
       - name: projects
         label: Projects (intro)
         file: src/content/pages/projects/{{locale}}.md

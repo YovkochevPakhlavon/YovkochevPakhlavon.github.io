@@ -64,6 +64,16 @@ On the site, placeholders look like `[this]` and are shown in grey or with a das
 - [ ] Other courses (one folder each), or remove the "[Another course]" card
 - [ ] "Teaching approach" text (`approach:` in `pages/teaching/en.md` and `uz.md`)
 
+## Interactive tools — `/research/tools`
+
+- [ ] Your own metrics (anisotropic fluid, dark-matter halo): fill the `custom` slot in
+      `src/physics/metrics.ts` and set `visible: true` (instructions at the top of the file)
+- [ ] Check the EHT bands in `src/data/eht-constraints.json` (M87*: Kocherlakota et al. 2021 Eq. 14;
+      Sgr A*: Vagnozzi et al. 2023 Eqs. 7–8) — or replace them with the numbers you prefer to cite
+- [ ] Check / extend the QPO sources in `src/data/qpo-sources.json` (Remillard & McClintock 2006)
+- [ ] Optional: export BlackPy reference values (`scripts/compare-blackpy.md`) and run `npm test`
+- [ ] Confirm the note "Formulas follow BlackPy" (it is shown on the page, as the spec asked)
+
 ## Uzbek text written by Claude — please check
 
 UI strings in `src/i18n/uz.ts` marked `// REVIEW` (menu labels, buttons, headings not in the SITE_SPEC
@@ -74,6 +84,7 @@ dictionary), plus all Uzbek page texts translated from English:
 - `src/content/research/uz/*.md` — theme descriptions (titles are from SITE_SPEC)
 - `src/content/projects/blackpy.yaml` — `uz:` description and roadmap
 - `EDITING.md` (the whole editing guide)
+- `src/content/pages/tools/uz.md` and the tools strings in `src/i18n/uz.ts` (`tools.*`, `shadow.*`, `qpo.*`)
 
 Points to check in particular:
 

@@ -26,7 +26,8 @@ async function pick<T>(
 export const getAbout = (lang: Lang) =>
   pick(async (l) => await getEntry('about', l), lang, 'src/content/about/');
 
-export type PageName = 'home' | 'research' | 'publications' | 'projects' | 'teaching' | 'contact';
+export type PageName =
+  'home' | 'research' | 'tools' | 'publications' | 'projects' | 'teaching' | 'contact';
 export const getPageText = (page: PageName, lang: Lang) =>
   pick(async (l) => await getEntry('pages', `${page}/${l}`), lang, `src/content/pages/${page}/`);
 

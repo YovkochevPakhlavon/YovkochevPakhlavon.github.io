@@ -137,6 +137,43 @@ const uz: Record<UiKey, string> = {
   'contact.affiliation': 'Iş joyi', // REVIEW
   'contact.noscriptEmail': 'Elektron poçta manzilini köriş uçun JavaScriptni yoqing.', // REVIEW
 
+  // Interactive tools
+  'tools.metric': 'Metrika', // REVIEW
+  'tools.mass': 'Qora öra massasi M', // REVIEW
+  'tools.source': 'Kuzatilgan QPO', // REVIEW
+  'tools.sourceNone': 'Yöq', // REVIEW
+  'tools.noscript':
+    'Bu kalkulyatorlar JavaScript talab qiladi. Quyidagi qiymatlar Schwarzschild qora örasi uçun.', // REVIEW
+  'tools.blackpy': 'Formulalar BlackPy dasturiga mos keladi.', // REVIEW
+  'tools.units': 'G = c = 1; radiuslar M birliklarida.', // REVIEW
+  'tools.data': 'Maʼlumotlar manbasi', // REVIEW
+  'tools.loading': 'Kalkulyator yuklanmoqda…', // REVIEW
+  'shadow.title': 'Soya kalkulyatori', // REVIEW
+  'shadow.horizon': 'Hodisalar gorizonti r_h', // REVIEW
+  'shadow.photon': 'Foton sferasi r_ph', // REVIEW
+  'shadow.radius': 'Soya radiusi R_sh', // REVIEW
+  'shadow.isco': 'ISCO', // REVIEW
+  'shadow.kmNote': 'Kilometrlar M = {m} M☉ uçun.', // REVIEW
+  'shadow.schw': 'Schwarzschild, 3√3 M', // REVIEW
+  'shadow.current': 'Tanlangan metrika', // REVIEW
+  'shadow.within1': '1σ içida', // REVIEW
+  'shadow.within2': '2σ içida', // REVIEW
+  'shadow.outside': 'taşqarida', // REVIEW
+  'shadow.none': 'soya yöq', // REVIEW
+  'shadow.noHorizon': 'gorizont yöq', // REVIEW
+  'shadow.constraints': 'R_sh / M böyiça EHT çeklovlari', // REVIEW
+  'qpo.title': 'QPO tahlilçisi', // REVIEW
+  'qpo.phi': 'ν_φ = ν_θ (orbital, vertikal)', // REVIEW
+  'qpo.r': 'ν_r (radial)', // REVIEW
+  'qpo.observed': 'kuzatilgan', // REVIEW
+  'qpo.axisNu': 'Çastota (Hz)', // REVIEW
+  'qpo.atIsco': 'ISCO da', // REVIEW
+  'qpo.resonance': '3:2 radiusida', // REVIEW
+  'qpo.massRange': 'dinamik massa', // REVIEW
+  'qpo.noMass': 'dinamik massasi nomaʼlum', // REVIEW
+  'qpo.table': 'Qiymatlarni körsatiş', // REVIEW
+  'qpo.spherical': 'Sferik simmetrik metrikalarda ν_θ = ν_φ.', // REVIEW
+
   // Footer
   'footer.next': 'Keyingi',
   'footer.home': 'Boş sahifa',

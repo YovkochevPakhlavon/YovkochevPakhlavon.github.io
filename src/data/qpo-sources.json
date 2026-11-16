@@ -1,0 +1,19 @@
+{
+  "_about": "Observed twin high-frequency QPOs of black-hole X-ray binaries, overlaid in the QPO explorer. Frequencies (Hz) and dynamical mass ranges (solar masses) are from the cited review (text of §6.2 and Table 1); null = no dynamical mass. Add sources only from the literature, with a reference.",
+  "reference": {
+    "label": "Remillard & McClintock (2006), ARA&A 44, 49 — §6.2 and Table 1",
+    "url": "https://doi.org/10.1146/annurev.astro.44.051905.092532"
+  },
+  "sources": [
+    { "id": "gro-j1655", "name": "GRO J1655−40", "qpos": [300, 450], "mass": [6.0, 6.6] },
+    { "id": "xte-j1550", "name": "XTE J1550−564", "qpos": [184, 276], "mass": [8.4, 10.8] },
+    {
+      "id": "grs-1915",
+      "name": "GRS 1915+105",
+      "qpos": [113, 168],
+      "mass": [10.0, 18.0],
+      "note": "mass marked uncertain in the source table"
+    },
+    { "id": "h1743", "name": "H 1743−322", "qpos": [165, 241], "mass": null }
+  ]
+}

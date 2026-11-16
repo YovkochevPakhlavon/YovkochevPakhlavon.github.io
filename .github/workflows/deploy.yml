@@ -29,8 +29,8 @@ jobs:
         with:
           node-version: 26
           package-manager: npm
-          # Content/type check and the Uzbek glyph check must pass before the build.
-          build-cmd: npm run check && npm run build
+          # Content/type check, glyph check and unit tests must pass before the build.
+          build-cmd: npm run check && npm test && npm run build
 
   deploy:
     needs: build

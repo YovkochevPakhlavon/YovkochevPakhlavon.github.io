@@ -1,0 +1,529 @@
+---
+/**
+ * /research/tools — shadow calculator and QPO explorer.
+ * Physics: src/physics/ (tested with Vitest). Data: src/data/eht-constraints.json and
+ * src/data/qpo-sources.json (values from the cited papers).
+ * The first view (Schwarzschild, M = 10 M☉) is rendered at build time, so the numbers are
+ * visible without JavaScript; src/scripts/tools/app.ts makes it interactive.
+ */
+import { render } from 'astro:content';
+import PageLayout from '../layouts/PageLayout.astro';
+import PageIntro from '../components/PageIntro.astro';
+import FallbackNote from '../components/FallbackNote.astro';
+import { localizePath, useTranslations, type Lang } from '../i18n';
+import en from '../i18n/en';
+import { getPageText } from '../lib/content';
+import { VISIBLE_METRICS } from '../physics/metrics';
+import { frequencies, resonanceRadius, summary } from '../physics/observables';
+import { fmt, rulerSvg, shadowSvg, verdicts, withKm } from '../scripts/tools/render';
+import eht from '../data/eht-constraints.json';
+import qpo from '../data/qpo-sources.json';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const { entry: page, fallback } = await getPageText('tools', lang);
+const { Content: Intro } = await render(page);
+
+// Strings the browser script needs.
+const keys = (Object.keys(en) as (keyof typeof en)[]).filter((k) =>
+  /^(shadow|qpo|tools)\./.test(k),
+);
+const strings = Object.fromEntries(keys.map((k) => [k, t(k)]));
+const constraints = eht.constraints.map((c) => ({
+  id: c.id,
+  name: c.name,
+  sigma1: c.sigma1 as [number, number],
+  sigma2: c.sigma2 as [number, number] | null,
+}));
+const config = { lang, t: strings, constraints, sources: qpo.sources };
+
+// First paint: Schwarzschild, 10 M☉.
+const MASS = 10;
+const metric = VISIBLE_METRICS[0]!;
+const s = summary(metric);
+const ri = s.isco ?? 6;
+const r32 = resonanceRadius(metric);
+const f32 = r32 ? frequencies(metric, r32, MASS) : null;
+const fIsco = frequencies(metric, ri, MASS);
+const radii = [ri, 8, 10, 12, 15, 20];
+---
+
+<PageLayout
+  lang={lang}
+  current="research"
+  route="research/tools"
+  title={page.data.title}
+  description={page.data.description}
+>
+  <nav class="crumbs mono" aria-label={t('nav.breadcrumb')}>
+    <a href={localizePath(lang, 'research')}>{t('nav.research')}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{page.data.title}</span>
+  </nav>
+  <PageIntro lang={lang} page="research" title={page.data.title}>
+    <div lang={fallback ? 'en' : lang}>
+      <Intro />
+      <FallbackNote lang={lang} show={fallback} />
+    </div>
+    <p class="note mono">
+      {t('tools.blackpy')} {t('tools.units')}
+    </p>
+  </PageIntro>
+
+  <noscript>
+    <p class="noscript">{t('tools.noscript')}</p>
+  </noscript>
+
+  <div class="tools" data-tools data-config={JSON.stringify(config)}>
+    <section class="card controls" aria-label={t('tools.metric')}>
+      <div class="field">
+        <label for="tool-metric">{t('tools.metric')}</label>
+        <select id="tool-metric" data-metric>
+          {VISIBLE_METRICS.map((m) => (
+            <option value={m.id}>{m.name[lang]}</option>
+          ))}
+        </select>
+        <code class="formula" data-formula>
+          {metric.formula}
+        </code>
+      </div>
+      <div class="params" data-params></div>
+      <div class="field">
+        <label for="tool-mass">{t('tools.mass')}</label>
+        <div class="mass">
+          <input
+            id="tool-mass"
+            type="range"
+            min="3"
+            max="30"
+            step="0.1"
+            value={MASS}
+            data-mass-range
+            aria-describedby="mass-unit"
+          />
+          <input
+            type="number"
+            min="1"
+            max="100"
+            step="0.1"
+            value={MASS}
+            data-mass-number
+            aria-label={`${t('tools.mass')} (M☉)`}
+          />
+          <span id="mass-unit" class="mono">
+            M☉
+          </span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="tool-source">{t('tools.source')}</label>
+        <select id="tool-source" data-source>
+          <option value="">{t('tools.sourceNone')}</option>
+          {qpo.sources.map((src) => (
+            <option value={src.id}>{src.name}</option>
+          ))}
+        </select>
+        <span class="mono small" data-source-info aria-live="polite"></span>
+      </div>
+    </section>
+
+    <div class="panels">
+      <!-- Shadow calculator -->
+      <section class="card panel" aria-labelledby="h-shadow">
+        <h2 id="h-shadow">{t('shadow.title')}</h2>
+        <div class="viz">
+          <div class="shadow-svg" data-shadow-svg set:html={shadowSvg(s.shadow, strings)} />
+          <ul class="legend" role="list">
+            <li>
+              <span class="sw sw--bh" aria-hidden="true"></span>
+              {t('shadow.current')}
+            </li>
+            <li>
+              <span class="sw sw--schw" aria-hidden="true"></span>
+              {t('shadow.schw')}
+            </li>
+          </ul>
+        </div>
+        <dl class="readouts" aria-live="polite">
+          <div>
+            <dt>{t('shadow.horizon')}</dt>
+            <dd data-out-horizon>{withKm(s.horizon, MASS)}</dd>
+          </div>
+          <div>
+            <dt>{t('shadow.photon')}</dt>
+            <dd data-out-photon>{withKm(s.photonSphere, MASS)}</dd>
+          </div>
+          <div class="hl">
+            <dt>{t('shadow.radius')}</dt>
+            <dd data-out-shadow>{withKm(s.shadow, MASS)}</dd>
+          </div>
+          <div>
+            <dt>{t('shadow.isco')}</dt>
+            <dd data-out-isco>{withKm(s.isco, MASS)}</dd>
+          </div>
+        </dl>
+        <p class="mono small" data-km-note>
+          {t('shadow.kmNote').replace('{m}', fmt(MASS, 1))}
+        </p>
+
+        <h3>{t('shadow.constraints')}</h3>
+        <div class="ruler" data-ruler-svg set:html={rulerSvg(s.shadow, constraints, strings)} />
+        <ul class="verdicts" role="list" aria-live="polite">
+          {verdicts(s.shadow, constraints, strings).map((v) => (
+            <li>
+              {v.name}:{' '}
+              <strong data-verdict={v.id} data-ok={String(v.ok)}>
+                {v.label}
+              </strong>
+            </li>
+          ))}
+        </ul>
+        <details class="sources">
+          <summary>{t('tools.data')}</summary>
+          <ul>
+            {eht.constraints.map((c) => (
+              <li>
+                <strong>{c.name}</strong>: {c.sigma1[0]} ≤ R_sh/M ≤ {c.sigma1[1]} (1σ)
+                {c.sigma2 && `, ${c.sigma2[0]}–${c.sigma2[1]} (2σ)`}. {c.basis}.{' '}
+                {c.refs.map((r, i) => (
+                  <>
+                    {i > 0 && '; '}
+                    <a href={r.url}>{r.label}</a>
+                  </>
+                ))}
+              </li>
+            ))}
+          </ul>
+        </details>
+      </section>
+
+      <!-- QPO explorer -->
+      <section class="card panel" aria-labelledby="h-qpo">
+        <h2 id="h-qpo">{t('qpo.title')}</h2>
+        <div class="chart" data-chart aria-hidden="true">
+          <p class="mono small chart-wait">{t('tools.loading')}</p>
+        </div>
+        <dl class="readouts" aria-live="polite">
+          <div>
+            <dt>{t('qpo.atIsco')}</dt>
+            <dd>
+              <span data-out-isco-r>r = {fmt(ri, 2)} M</span>
+              <br />
+              <span data-out-isco-nu>ν_φ = {fmt(fIsco.nuPhi, 1)} Hz, ν_r = 0 Hz</span>
+            </dd>
+          </div>
+          <div>
+            <dt>{t('qpo.resonance')}</dt>
+            <dd>
+              <span data-out-res-r>r = {fmt(r32, 2)} M</span>
+              <br />
+              <span data-out-res-nu>
+                {f32 ? `ν_φ = ${fmt(f32.nuPhi, 1)} Hz, ν_r = ${fmt(f32.nuR, 1)} Hz` : '—'}
+              </span>
+            </dd>
+          </div>
+        </dl>
+        <p class="mono small">{t('qpo.spherical')}</p>
+        <details class="sources">
+          <summary>{t('qpo.table')}</summary>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">r / M</th>
+                <th scope="col">ν_φ (Hz)</th>
+                <th scope="col">ν_r (Hz)</th>
+              </tr>
+            </thead>
+            <tbody data-qpo-table>
+              {radii.map((r) => {
+                const f = frequencies(metric, r, MASS);
+                return (
+                  <tr>
+                    <td>{fmt(r, 2)}</td>
+                    <td>{fmt(f.nuPhi, 1)}</td>
+                    <td>{fmt(f.nuR, 1)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </details>
+        <p class="small refs">
+          {t('tools.data')}: <a href={qpo.reference.url}>{qpo.reference.label}</a>
+        </p>
+      </section>
+    </div>
+  </div>
+</PageLayout>
+
+<script>
+  // Load the calculators when they come into view (like an Astro client:visible island).
+  const root = document.querySelector<HTMLElement>('[data-tools]');
+  if (root) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        import('../scripts/tools/app').then(({ init }) => init(root));
+      },
+      { rootMargin: '300px' },
+    );
+    io.observe(root);
+  }
+</script>
+
+<style>
+  .crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: -24px 0 32px;
+  }
+  .crumbs a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+  }
+  .note {
+    margin-top: 12px;
+  }
+  .noscript {
+    margin-bottom: 24px;
+    padding: 16px 20px;
+    border: 1px dashed var(--line-3);
+    border-radius: var(--radius-card);
+    color: var(--muted);
+  }
+
+  /* Controls */
+  .controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+    gap: 20px 28px;
+    margin-bottom: 20px;
+    padding: 24px 28px;
+  }
+  .field,
+  .controls :global(.field) {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+  .params:empty {
+    display: none;
+  }
+  .params {
+    display: contents;
+  }
+  label,
+  .controls :global(label) {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 0.875rem;
+    color: var(--text-2);
+  }
+  .controls :global(output) {
+    font-family: var(--font-mono);
+    color: var(--accent);
+  }
+  select,
+  input[type='number'] {
+    min-height: var(--tap);
+    padding: 0 12px;
+    border: 1px solid var(--line-3);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--text);
+  }
+  input[type='number'] {
+    width: 6.5em;
+  }
+  input[type='range'],
+  .controls :global(input[type='range']) {
+    width: 100%;
+    min-height: 32px;
+    accent-color: var(--accent);
+  }
+  .mass {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .formula {
+    font-size: var(--fs-mono);
+    color: var(--muted);
+  }
+  .small {
+    font-size: 0.75rem;
+  }
+
+  /* Panels */
+  .panels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr));
+    gap: 20px;
+  }
+  .panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+    padding: clamp(20px, 3vw, 32px);
+  }
+  .panel h2 {
+    font-size: 1.5rem;
+  }
+  .panel h3 {
+    margin-top: 8px;
+    font-size: var(--fs-small);
+  }
+  .viz {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 24px;
+  }
+  .shadow-svg {
+    flex: 0 1 260px;
+    width: 260px;
+    max-width: 100%;
+    aspect-ratio: 1;
+  }
+  .shadow-svg :global(svg),
+  .ruler :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .legend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--fs-small);
+    color: var(--text-2);
+  }
+  .legend li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sw {
+    width: 22px;
+    height: 0;
+    border-top: 2px solid var(--accent);
+  }
+  .sw--schw {
+    border-top: 1.5px dashed var(--text-2);
+  }
+  .readouts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+    gap: 12px 20px;
+    margin: 0;
+  }
+  dt {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  dd {
+    margin: 2px 0 0;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--heading);
+  }
+  .hl dd {
+    color: var(--accent);
+  }
+  .verdicts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--fs-small);
+  }
+  .verdicts strong[data-ok='true'] {
+    color: var(--accent);
+  }
+  .verdicts strong[data-ok='false'] {
+    color: var(--muted);
+  }
+  .sources {
+    font-size: 0.8125rem;
+    color: var(--text-3);
+  }
+  .sources summary {
+    min-height: 32px;
+    cursor: pointer;
+    color: var(--text-2);
+  }
+  .sources ul {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 8px 0 0;
+    padding-left: 18px;
+  }
+  table {
+    width: 100%;
+    margin-top: 8px;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+  th,
+  td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--line);
+    text-align: right;
+  }
+  th {
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .refs {
+    margin-top: auto;
+    color: var(--muted);
+  }
+
+  /* Chart (uPlot) */
+  .chart {
+    min-height: 260px;
+  }
+  .chart-wait {
+    padding-top: 100px;
+    text-align: center;
+  }
+  .chart :global(.uplot) {
+    font-family: var(--font-body);
+  }
+  .chart :global(.u-legend) {
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: var(--text-2);
+    text-align: left;
+  }
+  .chart :global(.u-legend .u-marker) {
+    width: 14px;
+    height: 3px;
+  }
+  .chart :global(.u-legend th),
+  .chart :global(.u-legend td) {
+    padding: 2px 6px;
+    border: 0;
+    text-align: left;
+  }
+  :global(html:not(.js)) .chart {
+    display: none;
+  }
+</style>

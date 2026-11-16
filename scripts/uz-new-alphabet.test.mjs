@@ -39,6 +39,13 @@ test('English words, names, CamelCase and code are not touched', () => {
   );
 });
 
+test('symbols with subscripts are not touched', () => {
+  assert.equal(
+    convertText('Soya radiusi R_sh va r_ph, shahar'),
+    'Soya radiusi R_sh va r_ph, şahar',
+  );
+});
+
 test('URLs, e-mails, DOIs and paths are not touched', () => {
   const s =
     'https://shop.example.com/ch?x=1 mail@chimgan.uz 10.1016/j.aop.2026.chapter files/charts/sh.pdf research/tools';

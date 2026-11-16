@@ -11,7 +11,7 @@
  *   npm run uz -- --yes src/content              write without asking
  *   npm run uz -- --all path/file.md             treat the whole file as Uzbek text
  *
- * What is never changed: code (`…` and ``` blocks), URLs, e-mails, DOIs, file paths,
+ * What is never changed: code (`…` and ``` blocks), URLs, e-mails, DOIs, file paths, R_sh-style symbols,
  * HTML tags, Markdown link targets, YAML keys, BibTeX keys and field names, CamelCase
  * words (GitHub, BlackPy), words with w / c (Schwarzschild), and every word listed in
  * scripts/uz-new-alphabet-ignore.txt (English words, names such as Yovkochev).
@@ -90,6 +90,7 @@ const PROTECT = [
   /\b10\.\d{4,9}\/[^\s"'<>{}]+/g, // DOIs
   /(?<![\p{L}\d])\.{0,2}\/?(?:[\w.-]+\/)+[\w.-]*/gu, // paths: files/a.pdf, research/tools
   /\{\{[^}]*\}\}/g, // template tags
+  /[\p{L}\d]+(?:_[\p{L}\d{}]+)+/gu, // symbols with subscripts: R_sh, r_ph, nu_phi
 ];
 
 /** Converts a piece of Uzbek text, leaving protected spans alone. */

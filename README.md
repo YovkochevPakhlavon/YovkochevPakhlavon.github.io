@@ -40,7 +40,7 @@ no server needed). Step-by-step guide in Uzbek: [EDITING.md](EDITING.md).
 | Command                          | What it does                                                            |
 | -------------------------------- | ----------------------------------------------------------------------- |
 | `npm run uz -- <file or folder>` | Convert Uzbek text to the new Latin alphabet (shows a diff, asks first) |
-| `npm run test:uz`                | Tests for the converter                                                 |
+| `npm test`                       | Unit tests: physics (Vitest) and the Uzbek converter                    |
 
 ## License
 
