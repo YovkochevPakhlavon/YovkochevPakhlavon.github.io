@@ -1,0 +1,31 @@
+---
+/** Eyebrow ("01 — about"), H1 and optional lead paragraph at the top of an inner page. */
+import { eyebrow, type Lang, type PageKey } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  page: Exclude<PageKey, 'home'>;
+  title: string;
+}
+const { lang, page, title } = Astro.props;
+---
+
+<header class="intro">
+  <p class="eyebrow">{eyebrow(lang, page)}</p>
+  <h1>{title}</h1>
+  {Astro.slots.has('default') && (
+    <div class="lead">
+      <slot />
+    </div>
+  )}
+</header>
+
+<style>
+  .intro {
+    margin-bottom: 48px;
+    max-width: 760px;
+  }
+  h1 {
+    margin-bottom: 20px;
+  }
+</style>

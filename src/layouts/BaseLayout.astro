@@ -1,0 +1,63 @@
+---
+/**
+ * The <html> shell for every page: language, <head> metadata, canonical URL,
+ * hreflang alternates, fonts and the skip link.
+ */
+import '../styles/global.css';
+import Fonts from '../components/Fonts.astro';
+import SkipLink from '../components/SkipLink.astro';
+import { HTML_LANG, LANGS, DEFAULT_LANG, localizePath, useTranslations, type Lang } from '../i18n';
+import { profile } from '../lib/profile';
+
+interface Props {
+  lang: Lang;
+  /** Language-neutral route, e.g. '' for Home, 'about'. */
+  route: string;
+  /** Page name; the site name is added automatically. Omit on Home. */
+  title?: string;
+  description?: string;
+  /** Set false for pages that should not be indexed (e.g. 404). */
+  index?: boolean;
+}
+
+const { lang, route, title, description, index = true } = Astro.props;
+const t = useTranslations(lang);
+const siteName = profile.name[lang];
+const fullTitle = title ? `${title} — ${siteName}` : `${siteName} — ${profile.position[lang]}`;
+const metaDescription = description ?? `${siteName} — ${t('site.description')}`;
+const abs = (l: Lang) => new URL(localizePath(l, route), Astro.site).href;
+---
+
+<!doctype html>
+<html lang={HTML_LANG[lang]} dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={metaDescription} />
+    <meta name="author" content={profile.name.en} />
+    <meta name="theme-color" content="#0B0D12" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="generator" content={Astro.generator} />
+    {!index && <meta name="robots" content="noindex" />}
+    {index && (
+      <>
+        <link rel="canonical" href={abs(lang)} />
+        {LANGS.map((l) => (
+          <link rel="alternate" hreflang={HTML_LANG[l]} href={abs(l)} />
+        ))}
+        <link rel="alternate" hreflang="x-default" href={abs(DEFAULT_LANG)} />
+      </>
+    )}
+    <link rel="icon" href={`${import.meta.env.BASE_URL}favicon.svg`} type="image/svg+xml" />
+    <Fonts />
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+    <slot name="head" />
+  </head>
+  <body>
+    <SkipLink lang={lang} />
+    <slot />
+  </body>
+</html>

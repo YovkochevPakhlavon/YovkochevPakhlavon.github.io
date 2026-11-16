@@ -1,0 +1,22 @@
+---
+/**
+ * Temporary body for inner pages during Phase 1 (scaffold).
+ * Each page gets its real view in Phase 2.
+ */
+import PageLayout from '../layouts/PageLayout.astro';
+import PageIntro from '../components/PageIntro.astro';
+import { useTranslations, type Lang, type PageKey } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  page: Exclude<PageKey, 'home'>;
+}
+const { lang, page } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<PageLayout lang={lang} current={page}>
+  <PageIntro lang={lang} page={page} title={t(`nav.${page}`)}>
+    <p class="placeholder">{t('page.wip')}</p>
+  </PageIntro>
+</PageLayout>

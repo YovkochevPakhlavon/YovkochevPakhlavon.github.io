@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Course — Fundamentals of Scientific Research in Physics</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B0D12}
+a{color:#F2A541}a:hover{color:#F7C27A}
+</style>
+</helmet>
+<div style="min-height: 100%; background: #0B0D12; color: #E8EAF0; font-family: Inter, system-ui, sans-serif; font-size: 16px; line-height: 1.6">
+
+<header style="border-bottom: 1px solid #1E2330">
+<div style="max-width: 1200px; margin: 0 auto; padding: 14px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+<a href="Home.dc.html" style="display: inline-flex; align-items: center; gap: 10px; font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 600; color: #E8EAF0; text-decoration: none">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true"><ellipse cx="12" cy="12" rx="11" ry="3.6" stroke="#F2A541" stroke-width="1.4"/><circle cx="12" cy="12" r="5.2" fill="#0B0D12" stroke="#F2A541" stroke-width="1.4"/></svg>
+Yovqochev</a>
+<nav aria-label="Main" style="display: flex; flex-wrap: wrap; align-items: center; gap: 24px; font-size: 15px">
+<a href="Home.dc.html" style="padding: 10px 0; color: #C5CAD6; text-decoration: none">Home</a>
+<a href="About.dc.html" style="padding: 10px 0; color: #C5CAD6; text-decoration: none">About</a>
+<a href="Research.dc.html" style="padding: 10px 0; color: #C5CAD6; text-decoration: none">Research</a>
+<a href="Papers.dc.html" style="padding: 10px 0; color: #C5CAD6; text-decoration: none">Publications</a>
+<a href="Projects.dc.html" style="padding: 10px 0; color: #C5CAD6; text-decoration: none">Projects</a>
+<a href="Teaching.dc.html" aria-current="page" style="padding: 10px 0; color: #FFFFFF; text-decoration: none; border-bottom: 2px solid #F2A541">Teaching</a>
+<a href="Contact.dc.html" style="padding: 10px 0; color: #C5CAD6; text-decoration: none">Contact</a>
+<div style="display: flex; gap: 2px; font-family: 'JetBrains Mono', monospace; font-size: 13px">
+<a href="#uz" style="padding: 6px 8px; color: #9AA3B2; text-decoration: none">UZ</a>
+<a href="#en" aria-current="true" style="padding: 6px 8px; color: #0B0D12; background: #F2A541; border-radius: 4px; text-decoration: none">EN</a>
+<a href="#ru" style="padding: 6px 8px; color: #9AA3B2; text-decoration: none">RU</a>
+</div>
+</nav>
+</div>
+</header>
+
+<main style="max-width: 1200px; margin: 0 auto; padding: 48px 32px 88px">
+<nav aria-label="Breadcrumb" style="margin-bottom: 32px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #9AA3B2"><a href="Teaching.dc.html">Teaching</a> / course</nav>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px">
+<span style="padding: 2px 10px; border-radius: 999px; border: 1px solid #F2A541; color: #F2A541; font-size: 12px; font-weight: 500">4th year</span>
+<span style="padding: 2px 10px; border-radius: 999px; border: 1px solid #3A4152; color: #C5CAD6; font-size: 12px; font-weight: 500">Uzbek</span>
+</div>
+<h1 style="margin: 0 0 8px; font-family: 'Space Grotesk', sans-serif; font-size: 48px; line-height: 1.1; font-weight: 600; letter-spacing: -0.02em; color: #FFFFFF">Fundamentals of Scientific Research in Physics</h1>
+<p style="margin: 0 0 40px; font-size: 19px; color: #9AA3B2; font-style: italic">Fizikada ilmiy tadqiqot asoslari</p>
+
+<div role="tablist" aria-label="Course sections" style="display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid #1E2330; margin-bottom: 40px">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="5">
+<button type="button" role="tab" aria-selected="{{t.selected}}" onClick="{{t.pick}}" style="{{t.btnStyle}}">{{t.label}}</button>
+</sc-for>
+</div>
+
+<sc-if value="{{showOverview}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-wrap: wrap; gap: 40px">
+<div style="flex: 1 1 560px; min-width: 0">
+<h2 style="margin: 0 0 16px; font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 600; color: #FFFFFF">About the course</h2>
+<p style="margin: 0 0 24px; font-size: 17px; color: #9AA3B2">[Course description: goals, what students learn, how they are assessed.]</p>
+<a href="#syllabus" style="display: inline-flex; align-items: center; gap: 8px; min-height: 48px; box-sizing: border-box; padding: 0 22px; border-radius: 999px; background: #F2A541; color: #0B0D12; font-weight: 600; text-decoration: none">Download syllabus (PDF)</a>
+</div>
+<dl style="flex: 0 1 340px; margin: 0; border: 1px solid #1E2330; border-radius: 16px; background: #11141B; padding: 28px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px">
+<div><dt style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA3B2">level</dt><dd style="margin: 4px 0 0; font-weight: 600">4th year</dd></div>
+<div><dt style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA3B2">language</dt><dd style="margin: 4px 0 0; font-weight: 600">Uzbek</dd></div>
+<div><dt style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA3B2">semester</dt><dd style="margin: 4px 0 0; font-weight: 600">[Semester]</dd></div>
+<div><dt style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA3B2">hours</dt><dd style="margin: 4px 0 0; font-weight: 600">[Hours]</dd></div>
+</dl>
+</div>
+</sc-if>
+
+<sc-if value="{{showLectures}}" hint-placeholder-val="{{ false }}">
+<ol style="list-style: none; margin: 0; padding: 0; border-top: 1px solid #1E2330">
+<sc-for list="{{lectures}}" as="l" hint-placeholder-count="5">
+<li style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px; padding: 20px 0; border-bottom: 1px solid #1E2330">
+<span style="flex: 0 0 48px; font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #F2A541">{{l.num}}</span>
+<span style="flex: 1 1 420px; min-width: 0; font-size: 17px; color: #E8EAF0">{{l.title}}</span>
+<span style="display: flex; gap: 8px">
+<a href="#pdf" style="display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid #2A3040; color: #E8EAF0; font-family: 'JetBrains Mono', monospace; font-size: 13px; text-decoration: none">PDF</a>
+<a href="#slides" style="display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid #2A3040; color: #E8EAF0; font-family: 'JetBrains Mono', monospace; font-size: 13px; text-decoration: none">Slides</a>
+<a href="#video" style="display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid #2A3040; color: #E8EAF0; font-family: 'JetBrains Mono', monospace; font-size: 13px; text-decoration: none">Video</a>
+</span>
+</li>
+</sc-for>
+</ol>
+</sc-if>
+
+<sc-if value="{{showBooks}}" hint-placeholder-val="{{ false }}">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px">
+<sc-for list="{{books}}" as="b" hint-placeholder-count="2">
+<div style="display: flex; gap: 24px; border: 1px solid #1E2330; border-radius: 16px; background: #11141B; padding: 28px">
+<div role="img" aria-label="Book cover placeholder" style="flex: 0 0 104px; height: 144px; border-radius: 6px; border: 1px dashed #4A5263; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #9AA3B2">[Cover]</div>
+<div style="min-width: 0">
+<p style="margin: 0 0 8px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #9AA3B2">{{b.kind}}</p>
+<h3 style="margin: 0 0 6px; font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 600; color: #FFFFFF">{{b.title}}</h3>
+<p style="margin: 0 0 16px; font-size: 15px; color: #9AA3B2">{{b.meta}}</p>
+<a href="#book" style="font-size: 14px; font-weight: 600">Download PDF →</a>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{showVideos}}" hint-placeholder-val="{{ false }}">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px">
+<sc-for list="{{videos}}" as="v" hint-placeholder-count="3">
+<a href="#watch" style="display: flex; flex-direction: column; gap: 12px; text-decoration: none">
+<span style="position: relative; display: flex; align-items: center; justify-content: center; aspect-ratio: 16 / 9; border-radius: 14px; border: 1px solid #1E2330; background: #11141B">
+<span aria-hidden="true" style="width: 56px; height: 56px; border-radius: 50%; background: #F2A541; display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="#0B0D12" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+</span>
+<span style="position: absolute; right: 12px; bottom: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #C5CAD6">{{v.duration}}</span>
+</span>
+<span style="font-size: 16px; font-weight: 500; color: #E8EAF0">{{v.title}}</span>
+</a>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{showTasks}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{tasks}}" as="a" hint-placeholder-count="3">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid #1E2330; border-radius: 14px; background: #11141B; padding: 20px 24px">
+<span style="font-size: 17px; color: #E8EAF0">{{a.title}}</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #9AA3B2">{{a.due}}</span>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</main>
+
+<footer style="border-top: 1px solid #1E2330">
+<div style="max-width: 1200px; margin: 0 auto; padding: 28px 32px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; font-size: 15px">
+<a href="Teaching.dc.html" style="color: #C5CAD6">← All courses</a>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #9AA3B2">© 2026 Pahlavon Yovqochev</span>
+<a href="Home.dc.html" style="font-weight: 500">Home</a>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1600}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { tab: 'overview' };
+}
+renderVals() {
+var self = this;
+var cur = this.state.tab;
+var defs = [
+{ id: 'overview', label: 'Overview' },
+{ id: 'lectures', label: 'Lectures' },
+{ id: 'books', label: 'Textbooks' },
+{ id: 'videos', label: 'Video lessons' },
+{ id: 'tasks', label: 'Assignments' }
+];
+var tabs = defs.map(function (d) {
+var on = d.id === cur;
+return {
+label: d.label,
+selected: on ? 'true' : 'false',
+btnStyle: on
+? 'min-height: 48px; padding: 0 18px; margin-bottom: -1px; border: 0; border-bottom: 2px solid #F2A541; background: transparent; color: #FFFFFF; font: 600 15px Inter, sans-serif; cursor: pointer'
+: 'min-height: 48px; padding: 0 18px; margin-bottom: -1px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: #9AA3B2; font: 500 15px Inter, sans-serif; cursor: pointer',
+pick: function () { self.setState({ tab: d.id }); }
+};
+});
+var lectures = [1, 2, 3, 4, 5].map(function (n) { return { num: (n < 10 ? '0' : '') + n, title: 'Lecture ' + n + ' — [Topic]' }; });
+var books = [
+{ kind: 'textbook', title: '[Textbook title]', meta: 'P. Yovqochev · [Publisher, year]' },
+{ kind: 'study guide', title: '[Study guide title]', meta: '[Author] · [Year]' }
+];
+var videos = [1, 2, 3].map(function (n) { return { title: 'Lesson ' + n + ' — [Topic]', duration: '[mm:ss]' }; });
+var tasks = [1, 2, 3].map(function (n) { return { title: 'Assignment ' + n + ' — [Task]', due: 'due [date]' }; });
+return {
+tabs: tabs,
+showOverview: cur === 'overview',
+showLectures: cur === 'lectures',
+showBooks: cur === 'books',
+showVideos: cur === 'videos',
+showTasks: cur === 'tasks',
+lectures: lectures,
+books: books,
+videos: videos,
+tasks: tasks
+};
+}
+}
+</script>
+</body>
+</html>

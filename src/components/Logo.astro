@@ -1,0 +1,48 @@
+---
+/** Disk-and-ring mark + short name. Links to Home in the current language. */
+import { profile } from '../lib/profile';
+import { localizePath, useTranslations, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<a class="logo" href={localizePath(lang)} aria-label={`${profile.name[lang]} — ${t('nav.home')}`}>
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <ellipse cx="12" cy="12" rx="11" ry="3.6" stroke="currentColor" stroke-width="1.4"></ellipse>
+    <circle
+      cx="12"
+      cy="12"
+      r="5.2"
+      fill="var(--bg)"
+      stroke="currentColor"
+      stroke-width="1.4"
+    ></circle>
+  </svg>
+  <span>{profile.shortName[lang]}</span>
+</a>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: var(--tap);
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .logo svg {
+    color: var(--accent);
+    flex: none;
+  }
+  .logo:hover {
+    color: var(--heading);
+  }
+</style>

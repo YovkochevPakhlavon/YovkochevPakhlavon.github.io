@@ -1,0 +1,49 @@
+---
+/** Layout for inner pages: header, main content, footer. */
+import BaseLayout from './BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { PAGES, useTranslations, type Lang, type PageKey } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  /** Which nav item is active. */
+  current: PageKey;
+  /** Language-neutral route; defaults to the page's own route. */
+  route?: string;
+  title?: string;
+  description?: string;
+}
+
+const { lang, current, title, description } = Astro.props;
+const route = Astro.props.route ?? PAGES.find((p) => p.key === current)!.route;
+const t = useTranslations(lang);
+---
+
+<BaseLayout
+  lang={lang}
+  route={route}
+  title={title ?? t(`nav.${current}`)}
+  description={description}
+>
+  <slot name="head" slot="head" />
+  <Header lang={lang} current={current} route={route} />
+  <main id="main" tabindex="-1" class="container page">
+    <slot />
+  </main>
+  <Footer lang={lang} current={current} />
+</BaseLayout>
+
+<style>
+  .page {
+    padding-block: 72px 88px;
+  }
+  .page:focus {
+    outline: none;
+  }
+  @media (max-width: 767px) {
+    .page {
+      padding-block: 48px 64px;
+    }
+  }
+</style>

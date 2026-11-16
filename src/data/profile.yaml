@@ -1,0 +1,44 @@
+# Your profile. Edit the values on the right; keep the names on the left as they are.
+# Every field has an English (en) and an Uzbek (uz) version.
+# Uzbek text uses the new Latin alphabet (Ö ö, Ğ ğ, Ş ş, Ç ç).
+# An empty value ("") hides that item on the site.
+
+name:
+  en: Pakhlavon Yovkochev
+  uz: Pahlavon Yovqoçev
+
+# Short name used next to the logo.
+shortName:
+  en: Yovkochev
+  uz: Yovqoçev
+
+position:
+  en: Assistant, Department of Physics
+  uz: Fizika kafedrasi assistenti
+
+institution:
+  en: Samarkand State Pedagogical Institute
+  uz: Samarqand davlat pedagogika instituti
+
+location:
+  en: Samarkand, Uzbekistan
+  uz: Samarqand, Özbekiston
+
+degree:
+  en: PhD, 2026 (Theoretical Physics)
+  uz: PhD, 2026 (Nazariy fizika)
+
+# Professional email. Empty until you fill it in (see TODO-CONTENT.md).
+email: ''
+
+# Academic profiles: full URLs. Empty ones are hidden.
+links:
+  orcid: ''
+  scholar: ''
+  arxiv: ''
+  researchgate: ''
+  scopus: ''
+  github: https://github.com/YovkochevPakhlavon
+
+# Contact form endpoint (e.g. a Formspree URL). Empty = show a "Write me an email" button.
+formEndpoint: ''

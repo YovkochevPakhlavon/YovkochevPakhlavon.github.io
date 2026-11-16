@@ -1,0 +1,181 @@
+---
+/**
+ * Home — Phase 1 scaffold: top bar, name block and a plain numbered list of sections.
+ * Phase 2 adds the portrait, chips, buttons and the orbital navigation;
+ * Phase 6 adds the WebGL black hole.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Logo from '../components/Logo.astro';
+import LangSwitch from '../components/LangSwitch.astro';
+import { PAGES, localizePath, useTranslations, type Lang } from '../i18n';
+import { profile } from '../lib/profile';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const [first, ...rest] = profile.name[lang].split(' ');
+const sections = PAGES.filter((p) => p.key !== 'home');
+const profileLinks = [
+  ['ORCID', profile.links.orcid],
+  ['Scholar', profile.links.scholar],
+  ['arXiv', profile.links.arxiv],
+  ['GitHub', profile.links.github],
+].filter(([, url]) => url);
+---
+
+<BaseLayout lang={lang} route="">
+  <header class="container container--home top">
+    <Logo lang={lang} />
+    <LangSwitch lang={lang} route="" />
+  </header>
+
+  <main id="main" tabindex="-1" class="container container--home hero">
+    <div class="text">
+      <p class="meta">
+        {t('home.field')}
+        <br />
+        <span>{profile.location[lang]}</span>
+      </p>
+      <h1>
+        {first}
+        <br />
+        {rest.join(' ')}
+      </h1>
+      <p class="position">{profile.position[lang]}</p>
+      <p class="institution">{profile.institution[lang]}</p>
+    </div>
+
+    <nav class="sections" aria-label={t('nav.sections')}>
+      <ol>
+        {sections.map((p) => (
+          <li>
+            <a href={localizePath(lang, p.route)}>
+              <span class="num">{p.num}</span>
+              {t(`nav.${p.key}`)}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  </main>
+
+  <footer class="container container--home strip mono">
+    <span>
+      © {new Date().getFullYear()} {profile.name[lang]}
+    </span>
+    {profileLinks.length > 0 && (
+      <span class="links">
+        {profileLinks.map(([label, url]) => (
+          <a href={url}>{label}</a>
+        ))}
+      </span>
+    )}
+  </footer>
+</BaseLayout>
+
+<style>
+  .top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-block: 24px;
+  }
+  .hero {
+    flex: 1 1 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 56px;
+    padding-block: 24px 48px;
+  }
+  .hero:focus {
+    outline: none;
+  }
+  .text {
+    flex: 1 1 480px;
+    min-width: 0;
+  }
+  .meta {
+    margin-bottom: 28px;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.8;
+    color: var(--accent);
+  }
+  .meta span {
+    color: var(--muted);
+  }
+  h1 {
+    margin-bottom: 16px;
+    font-size: var(--fs-h1-home);
+    line-height: 1.02;
+  }
+  .position {
+    margin-bottom: 8px;
+    font-size: 1.125rem;
+  }
+  .institution {
+    color: var(--muted);
+  }
+  .sections {
+    flex: 1 1 360px;
+    min-width: 0;
+  }
+  .sections ol {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .sections a {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: var(--tap);
+    padding: 0 16px;
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    color: var(--text);
+    font-weight: 500;
+    font-size: var(--fs-small);
+    text-decoration: none;
+    transition:
+      border-color 0.15s var(--ease),
+      box-shadow 0.15s var(--ease);
+  }
+  .sections a:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 18px var(--accent-glow);
+    color: var(--heading);
+  }
+  .num {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+  }
+  .strip {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 16px;
+    padding-block: 20px 28px;
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .links a {
+    color: var(--muted);
+  }
+  .links a:hover {
+    color: var(--accent-hi);
+  }
+</style>

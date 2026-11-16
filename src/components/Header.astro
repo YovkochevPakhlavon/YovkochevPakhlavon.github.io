@@ -1,0 +1,265 @@
+---
+/**
+ * Site header for every page except Home: logo, main nav, UZ | EN.
+ * Below 960px the nav becomes a full-screen overlay opened by the menu button.
+ * Without JavaScript the nav simply wraps under the logo (always usable).
+ */
+import Logo from './Logo.astro';
+import LangSwitch from './LangSwitch.astro';
+import { PAGES, localizePath, useTranslations, type Lang, type PageKey } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  current: PageKey;
+  route?: string;
+}
+const { lang, current, route } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<header class="site-header" data-header>
+  <div class="container bar">
+    <Logo lang={lang} />
+    <nav id="site-nav" class="nav" aria-label={t('nav.label')}>
+      <ul>
+        {PAGES.map((p) => (
+          <li>
+            <a
+              href={localizePath(lang, p.route)}
+              aria-current={p.key === current ? 'page' : undefined}
+            >
+              <span class="num" aria-hidden="true">
+                {p.num}
+              </span>
+              {t(`nav.${p.key}`)}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <LangSwitch lang={lang} route={route} />
+    <button
+      class="menu-btn"
+      type="button"
+      aria-expanded="false"
+      aria-controls="site-nav"
+      data-menu-btn
+      data-label-open={t('nav.menu')}
+      data-label-close={t('nav.close')}
+    >
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <path class="l1" d="M4 7h16"></path>
+        <path class="l2" d="M4 12h16"></path>
+        <path class="l3" d="M4 17h16"></path>
+      </svg>
+      <span data-menu-label>{t('nav.menu')}</span>
+    </button>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const btn = header?.querySelector<HTMLButtonElement>('[data-menu-btn]');
+  const label = btn?.querySelector<HTMLElement>('[data-menu-label]');
+  const nav = header?.querySelector<HTMLElement>('#site-nav');
+  const mq = window.matchMedia('(max-width: 959px)');
+
+  if (header && btn && label && nav) {
+    const outside = () => document.querySelectorAll<HTMLElement>('body > :not(.site-header)');
+
+    const setOpen = (open: boolean, returnFocus = false) => {
+      header.toggleAttribute('data-open', open);
+      btn.setAttribute('aria-expanded', String(open));
+      label.textContent = (open ? btn.dataset.labelClose : btn.dataset.labelOpen) ?? '';
+      document.documentElement.classList.toggle('menu-open', open);
+      outside().forEach((el) => (el.inert = open));
+      if (open) nav.querySelector<HTMLElement>('a')?.focus();
+      else if (returnFocus) btn.focus();
+    };
+
+    btn.addEventListener('click', () => setOpen(!header.hasAttribute('data-open')));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && header.hasAttribute('data-open')) setOpen(false, true);
+    });
+    nav.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('a')) setOpen(false);
+    });
+    mq.addEventListener('change', () => {
+      if (!mq.matches) setOpen(false);
+    });
+  }
+</script>
+
+<style>
+  .site-header {
+    border-bottom: 1px solid var(--line);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 16px 28px;
+    padding-block: 14px;
+  }
+  .bar > :global(.logo) {
+    margin-right: auto;
+  }
+  .nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: var(--tap);
+    padding: 0;
+    border-bottom: 2px solid transparent;
+    color: var(--text-2);
+    font-size: var(--fs-small);
+    text-decoration: none;
+  }
+  .nav a:hover {
+    color: var(--heading);
+  }
+  .nav a[aria-current='page'] {
+    color: var(--heading);
+    border-bottom-color: var(--accent);
+  }
+  .num {
+    display: none;
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    color: var(--accent);
+  }
+  .menu-btn {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    min-height: var(--tap);
+    padding: 0 14px;
+    border: 1px solid var(--line-3);
+    border-radius: var(--radius-pill);
+    background: transparent;
+    font-size: var(--fs-small);
+    cursor: pointer;
+  }
+  .menu-btn:hover {
+    border-color: var(--accent);
+  }
+  .menu-btn path {
+    transition:
+      transform 0.2s var(--ease),
+      opacity 0.2s var(--ease);
+    transform-origin: 12px 12px;
+  }
+
+  /* ----- Narrow screens ----- */
+  @media (max-width: 959px) {
+    /* No JS: nav wraps onto its own row under the logo. */
+    :global(html:not(.js)) .bar {
+      flex-wrap: wrap;
+    }
+    :global(html:not(.js)) .nav {
+      order: 3;
+      flex-basis: 100%;
+    }
+
+    /* With JS: full-screen overlay. */
+    :global(html.js) .menu-btn {
+      display: inline-flex;
+    }
+    :global(html.js) .bar {
+      position: relative;
+      z-index: 2;
+      gap: 12px;
+    }
+    /* Logo, UZ | EN and the menu button stay above the overlay. */
+    :global(html.js) .bar > :global(:not(.nav)) {
+      position: relative;
+      z-index: 2;
+    }
+    :global(html.js) .nav {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      padding: 96px var(--gutter) 32px;
+      background: var(--bg);
+      overflow-y: auto;
+      visibility: hidden;
+      opacity: 0;
+      transition:
+        opacity 0.2s var(--ease),
+        visibility 0s linear 0.2s;
+    }
+    :global(html.js) .site-header[data-open] .nav {
+      visibility: visible;
+      opacity: 1;
+      transition: opacity 0.2s var(--ease);
+    }
+    :global(html.js) .nav ul {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+    }
+    :global(html.js) .nav li {
+      border-bottom: 1px solid var(--line);
+    }
+    :global(html.js) .nav a {
+      display: flex;
+      gap: 16px;
+      min-height: 64px;
+      border-bottom: 0;
+      font-family: var(--font-heading);
+      font-size: 1.75rem;
+      font-weight: 600;
+      letter-spacing: var(--tracking-heading);
+      color: var(--text);
+    }
+    :global(html.js) .nav a[aria-current='page'] {
+      color: var(--accent);
+    }
+    :global(html.js) .num {
+      display: inline;
+      min-width: 2ch;
+    }
+    .site-header[data-open] .l1 {
+      transform: translateY(5px) rotate(45deg);
+    }
+    .site-header[data-open] .l2 {
+      opacity: 0;
+    }
+    .site-header[data-open] .l3 {
+      transform: translateY(-5px) rotate(-45deg);
+    }
+    :global(html.menu-open) {
+      overflow: hidden;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .menu-btn span {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .menu-btn {
+      padding: 0 11px;
+    }
+  }
+</style>

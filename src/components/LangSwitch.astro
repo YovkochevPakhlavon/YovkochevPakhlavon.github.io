@@ -1,0 +1,55 @@
+---
+/** UZ | EN switcher. Keeps the visitor on the same page in the other language. */
+import { localizePath, routeFromPath, useTranslations, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  /** Language-neutral route of this page; defaults to the current URL. */
+  route?: string;
+}
+const { lang, route = routeFromPath(Astro.url.pathname) } = Astro.props;
+const t = useTranslations(lang);
+const options: { code: Lang; label: string }[] = [
+  { code: 'uz', label: 'UZ' },
+  { code: 'en', label: 'EN' },
+];
+---
+
+<div class="lang" role="group" aria-label={t('lang.label')}>
+  {options.map((o) => (
+    <a
+      href={localizePath(o.code, route)}
+      hreflang={o.code}
+      lang={o.code}
+      aria-current={o.code === lang ? 'true' : undefined}
+      aria-label={useTranslations(o.code)(`lang.${o.code}`)}
+    >
+      {o.label}
+    </a>
+  ))}
+</div>
+
+<style>
+  .lang {
+    display: flex;
+    gap: 2px;
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+  }
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 0 9px;
+    border-radius: 4px;
+    color: var(--muted);
+    text-decoration: none;
+  }
+  a:hover {
+    color: var(--heading);
+  }
+  a[aria-current='true'] {
+    background: var(--accent);
+    color: var(--bg);
+  }
+</style>

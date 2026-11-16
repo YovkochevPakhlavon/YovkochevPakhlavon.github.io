@@ -1,0 +1,90 @@
+---
+/**
+ * 404 page. GitHub Pages serves a single /404.html for every missing URL, so this page
+ * holds both languages: English by default, Uzbek when the missing URL starts with /uz/.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Logo from '../components/Logo.astro';
+import { LANGS, localizePath, useTranslations } from '../i18n';
+---
+
+<BaseLayout lang="en" route="" title="404" index={false}>
+  {LANGS.map((lang) => {
+    const t = useTranslations(lang);
+    return (
+      <div class="lost" data-lang={lang} lang={lang} hidden={lang !== 'en'}>
+        <header class="container top">
+          <Logo lang={lang} />
+        </header>
+        <main id={lang === 'en' ? 'main' : undefined} tabindex="-1" class="container body">
+          <div class="hole" aria-hidden="true" />
+          <p class="eyebrow">404</p>
+          <h1>{t('notFound.title')}</h1>
+          <p class="lead">{t('notFound.text')}</p>
+          <a class="btn btn--primary" href={localizePath(lang)}>
+            ← {t('notFound.home')}
+          </a>
+        </main>
+      </div>
+    );
+  })}
+
+  <script is:inline>
+    (function () {
+      if (!/^\/uz(\/|$)/.test(location.pathname)) return;
+      var en = document.querySelector('[data-lang="en"]');
+      var uz = document.querySelector('[data-lang="uz"]');
+      if (!en || !uz) return;
+      en.hidden = true;
+      uz.hidden = false;
+      en.querySelector('main').removeAttribute('id');
+      uz.querySelector('main').id = 'main';
+      document.documentElement.lang = 'uz';
+      var title = uz.querySelector('h1');
+      if (title) document.title = '404 — ' + title.textContent;
+    })();
+  </script>
+</BaseLayout>
+
+<style>
+  .lost {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+  }
+  .lost[hidden] {
+    display: none;
+  }
+  .top {
+    padding-block: 24px;
+  }
+  .body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding-block: 48px 96px;
+  }
+  .body:focus {
+    outline: none;
+  }
+  h1 {
+    margin-bottom: 16px;
+    max-width: 14ch;
+  }
+  .lead {
+    margin-bottom: 32px;
+  }
+  .hole {
+    width: 96px;
+    height: 96px;
+    margin-bottom: 40px;
+    border-radius: 50%;
+    background: #000;
+    box-shadow:
+      0 0 0 2px var(--accent),
+      0 0 30px 4px rgba(242, 165, 65, 0.4),
+      0 0 90px 20px rgba(242, 165, 65, 0.1);
+  }
+</style>
