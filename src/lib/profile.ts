@@ -30,6 +30,7 @@ const ProfileSchema = z.object({
   name: bilingual('name'),
   shortName: bilingual('shortName'),
   position: bilingual('position'),
+  department: bilingual('department'),
   institution: bilingual('institution'),
   location: bilingual('location'),
   degree: bilingual('degree'),

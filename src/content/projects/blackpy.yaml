@@ -1,0 +1,36 @@
+# One file per project. Empty values ('') are hidden or shown as placeholders.
+name: BlackPy
+order: 1
+featured: true
+language: Python
+license: MIT
+description:
+  en: A general-purpose toolkit for black hole phenomenology, in the spirit of CosmoMC and SimpleMC. Give it a metric; it computes observables and fits them to QPO and EHT data with emcee or dynesty.
+  uz: Qora öralar fenomenologiyasi uçun umumiy maqsadli vosita, CosmoMC va SimpleMC ruhida. Unga metrikani bering — u kuzatuv kattaliklarini hisoblaydi va ularni emcee yoki dynesty yordamida QPO va EHT maʼlumotlariga moslaydi.
+repo: '' # e.g. https://github.com/YovkochevPakhlavon/BlackPy
+docs: '' # documentation URL
+tags: [metrics, observables, QPO, EHT, MCMC]
+roadmap:
+  - version: v0.1
+    state: done
+    text:
+      en: Static, spherically symmetric metrics
+      uz: Statik, sferik simmetrik metrikalar
+  - version: v0.2
+    state: done
+    text:
+      en: Rotating metrics
+      uz: Aylanuvçi metrikalar
+  - version: v0.3
+    state: in-progress
+    text:
+      en: In progress
+      uz: Işlanmoqda
+# Terminal block. Lines starting with "$" are commands, "#" are spacers, "key: value" are settings.
+terminal:
+  - '$ [install command]'
+  - '#'
+  - 'metric → observables → QPO / EHT fit'
+  - '#'
+  - 'sampler: emcee | dynesty'
+  - 'license: MIT'

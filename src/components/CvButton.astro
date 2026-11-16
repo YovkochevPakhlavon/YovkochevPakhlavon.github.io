@@ -1,0 +1,50 @@
+---
+/**
+ * "Download CV" button. Links to public/files/cv.pdf; while that file does not exist,
+ * a dashed placeholder is shown instead of a broken link.
+ */
+import { CV_PATH, publicFileExists, publicUrl } from '../lib/files';
+import { useTranslations, type Lang } from '../i18n';
+import type { UiKey } from '../i18n/en';
+
+interface Props {
+  lang: Lang;
+  label?: UiKey;
+}
+const { lang, label = 'cta.cv' } = Astro.props;
+const t = useTranslations(lang);
+const exists = publicFileExists(CV_PATH);
+---
+
+{exists ? (
+  <a class="btn btn--primary" href={publicUrl(CV_PATH)} download>
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M12 3v12" />
+      <path d="m7 10 5 5 5-5" />
+      <path d="M5 21h14" />
+    </svg>
+    {t(label)}
+  </a>
+) : (
+  <span class="btn cv-missing">
+    {t(label)} {t('cv.placeholder')}
+  </span>
+)}
+
+<style>
+  .cv-missing {
+    border: 1px dashed var(--line-3);
+    color: var(--muted);
+    cursor: default;
+  }
+</style>

@@ -1,0 +1,241 @@
+---
+/**
+ * Research: intro, five numbered themes (src/content/research/), methods & tools,
+ * and cards for interactive tools, talks and notes (src/content/pages/research/).
+ */
+import { render } from 'astro:content';
+import PageLayout from '../layouts/PageLayout.astro';
+import PageIntro from '../components/PageIntro.astro';
+import BlackHole from '../components/BlackHole.astro';
+import FallbackNote from '../components/FallbackNote.astro';
+import { localizePath, useTranslations, type Lang } from '../i18n';
+import { getPageText, getResearchThemes } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const { entry: page, fallback } = await getPageText('research', lang);
+const { Content: Intro } = await render(page);
+const themes = await Promise.all(
+  (await getResearchThemes(lang)).map(async ({ entry, fallback }) => ({
+    entry,
+    fallback,
+    Body: (await render(entry)).Content,
+  })),
+);
+const [toolsCard, ...otherCards] = page.data.cards ?? [];
+const publications = localizePath(lang, 'publications');
+---
+
+<PageLayout
+  lang={lang}
+  current="research"
+  title={page.data.title}
+  description={page.data.description}
+>
+  <PageIntro lang={lang} page="research" title={page.data.title}>
+    <div lang={fallback ? 'en' : lang}>
+      <Intro />
+      <FallbackNote lang={lang} show={fallback} />
+    </div>
+  </PageIntro>
+
+  <ol class="themes">
+    {themes.map(({ entry, fallback, Body }, i) => (
+      <li lang={fallback ? 'en' : lang}>
+        <span class="n" aria-hidden="true">
+          {String(i + 1).padStart(2, '0')}
+        </span>
+        <div class="body">
+          <h2>
+            {entry.data.title}
+            <FallbackNote lang={lang} show={fallback} />
+          </h2>
+          <div class="desc">
+            <Body />
+          </div>
+        </div>
+        <a class="related" href={`${publications}?theme=${entry.data.tag}`}>
+          {t('research.related')}
+          <span aria-hidden="true">&nbsp;→</span>
+          <span class="visually-hidden">: {entry.data.title}</span>
+        </a>
+      </li>
+    ))}
+  </ol>
+
+  <section class="row">
+    {page.data.methods && (
+      <div class="card methods">
+        <h2>{t('research.methods')}</h2>
+        <ul class="chips" role="list">
+          {page.data.methods.map((m) => (
+            <li class="chip chip--lg">{m}</li>
+          ))}
+        </ul>
+      </div>
+    )}
+    {toolsCard && (
+      <a class="card feature" href={localizePath(lang, toolsCard.route)}>
+        <BlackHole variant="simple" class="mini-bh" />
+        <span>
+          <span class="label">{toolsCard.label}</span>
+          <span class="title">{toolsCard.title}</span>
+          <span class="text">{toolsCard.text}</span>
+        </span>
+      </a>
+    )}
+  </section>
+
+  {otherCards.length > 0 && (
+    <section class="links">
+      {otherCards.map((c) => (
+        <a class="card link-card" href={localizePath(lang, c.route)}>
+          <span class="label">{c.label}</span>
+          <span class="title">{c.title} →</span>
+          <span class="text">{c.text}</span>
+        </a>
+      ))}
+    </section>
+  )}
+</PageLayout>
+
+<style>
+  /* Themes */
+  .themes {
+    margin: 16px 0 88px;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+  .themes li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 40px;
+    padding: 36px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .n {
+    flex: 0 0 64px;
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    line-height: 1;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .body {
+    flex: 1 1 520px;
+    min-width: 0;
+  }
+  .body h2 {
+    margin-bottom: 8px;
+    font-size: clamp(1.375rem, 1.2rem + 0.6vw, 1.625rem);
+  }
+  .desc {
+    color: var(--text-3);
+  }
+  .related {
+    flex: 0 0 auto;
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .related:hover {
+    text-decoration: underline;
+  }
+
+  /* Methods + tools */
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  .row > * {
+    flex: 1 1 460px;
+    min-width: 0;
+  }
+  .methods h2 {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+  }
+  .chip--lg {
+    padding: 6px 14px;
+    font-size: 0.875rem;
+  }
+  .feature {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 24px;
+    border-color: var(--accent);
+    text-decoration: none;
+    transition: box-shadow 0.15s var(--ease);
+  }
+  .feature:hover {
+    box-shadow: 0 0 24px var(--accent-glow);
+  }
+  .feature :global(.mini-bh) {
+    flex: 0 0 72px;
+    width: 72px;
+  }
+  .feature > span {
+    flex: 1 1 240px;
+    min-width: 0;
+  }
+
+  /* Card text */
+  .label,
+  .title,
+  .text {
+    display: block;
+  }
+  .label {
+    margin-bottom: 4px;
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    color: var(--accent);
+  }
+  .title {
+    margin-bottom: 6px;
+    font-family: var(--font-heading);
+    font-size: 1.375rem;
+    font-weight: 600;
+    letter-spacing: var(--tracking-heading);
+    color: var(--heading);
+  }
+  .text {
+    font-size: var(--fs-small);
+    color: var(--text-3);
+  }
+
+  /* Talks / Notes */
+  .links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+    gap: 20px;
+  }
+  .link-card {
+    text-decoration: none;
+    transition: border-color 0.15s var(--ease);
+  }
+  .link-card:hover {
+    border-color: var(--accent);
+  }
+
+  @media (max-width: 767px) {
+    .n {
+      flex-basis: 100%;
+      font-size: 2rem;
+    }
+    .card {
+      padding: 24px;
+    }
+  }
+</style>

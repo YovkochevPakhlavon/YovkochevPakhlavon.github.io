@@ -28,8 +28,11 @@ const next = current === 'home' ? null : nextPage(current);
     )}
   </div>
   <div class="container license mono">
-    {t('footer.license')}
-    {profile.name[lang]}
+    <span>
+      {t('footer.license')}
+      {profile.name[lang]}
+    </span>
+    <a href={localizePath(lang, 'notes')}>{t('footer.notes')}</a>
   </div>
 </footer>
 
@@ -63,7 +66,17 @@ const next = current === 'home' ? null : nextPage(current);
     font-weight: 500;
   }
   .license {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 16px;
     margin-top: 4px;
     font-size: 0.75rem;
+  }
+  .license a {
+    color: var(--muted);
+  }
+  .license a:hover {
+    color: var(--accent-hi);
   }
 </style>

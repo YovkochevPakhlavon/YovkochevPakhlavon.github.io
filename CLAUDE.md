@@ -31,6 +31,22 @@ after each phase run `npm run check && npm run build`, list what to look at, com
 | Routes                                       | `src/pages/*.astro` (English) and `src/pages/uz/*.astro` — 2-line wrappers passing `lang` |
 | Placeholders still to fill                   | `TODO-CONTENT.md`                                                                         |
 
+### Content (schemas in `src/content.config.ts`, helpers in `src/lib/content.ts`)
+
+| Collection               | Files                                                                                                                                            |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `about`                  | `src/content/about/{en,uz}.md` — bio (body) + timeline, interests, beyond, achievements                                                          |
+| `pages`                  | `src/content/pages/<home\|research\|publications\|projects\|teaching\|contact>/{en,uz}.md` — intro (body), meta description, page-specific lists |
+| `research`               | `src/content/research/{en,uz}/NN-name.md` — `order`, `title`, `tag` (matches BibTeX `themes`)                                                    |
+| `projects`               | `src/content/projects/<name>.yaml` — bilingual fields inside one file                                                                            |
+| `courses` + `courseText` | `src/content/courses/<slug>/course.yaml` + `{en,uz}.md`                                                                                          |
+
+- Missing Uzbek file → English is used and `<FallbackNote>` shows "(inglizça)"; wrap the text in `lang="en"`.
+- Text containing `[...]` is a placeholder: `isPlaceholder()` styles it muted/dashed.
+- Portrait: drop `src/assets/portrait.{jpg,png,webp}`; `Portrait.astro` optimizes it (AVIF/WebP).
+- Files in `public/files/` are checked at build time (`src/lib/files.ts`); missing → dashed placeholder, never a broken link.
+- Pages for later phases (`research/tools`, `research/talks`, `notes`) use `src/views/SectionStub.astro`.
+
 Every page exists in both languages. Links always go through `localizePath(lang, route)`;
 never hard-code hostnames or `/uz/` prefixes. Pages are `trailingSlash: 'always'`.
 

@@ -1,43 +1,66 @@
 ---
 /**
- * Home — Phase 1 scaffold: top bar, name block and a plain numbered list of sections.
- * Phase 2 adds the portrait, chips, buttons and the orbital navigation;
- * Phase 6 adds the WebGL black hole.
+ * Home — the hero only: who I am on the left, orbital navigation on the right.
+ * The six section links sit on a dashed orbit around a CSS black hole.
+ * On phones (< 768px) the orbit becomes a numbered list under a small black hole.
+ * Phase 6 adds the live WebGL black hole behind the links (this CSS one stays as fallback).
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Logo from '../components/Logo.astro';
 import LangSwitch from '../components/LangSwitch.astro';
+import Portrait from '../components/Portrait.astro';
+import BlackHole from '../components/BlackHole.astro';
+import CvButton from '../components/CvButton.astro';
 import { PAGES, localizePath, useTranslations, type Lang } from '../i18n';
 import { profile } from '../lib/profile';
+import { getPageText } from '../lib/content';
 
 interface Props {
   lang: Lang;
 }
 const { lang } = Astro.props;
 const t = useTranslations(lang);
+const { entry: home } = await getPageText('home', lang);
 const [first, ...rest] = profile.name[lang].split(' ');
-const sections = PAGES.filter((p) => p.key !== 'home');
-const profileLinks = [
-  ['ORCID', profile.links.orcid],
-  ['Scholar', profile.links.scholar],
-  ['arXiv', profile.links.arxiv],
-  ['GitHub', profile.links.github],
-].filter(([, url]) => url);
+
+/** Orbit: radius 43% of the box, angles clockwise from the right (−90° = top). */
+const ANGLES = [-90, -30, 30, 90, 150, 210];
+const RADIUS = 43;
+const sections = PAGES.filter((p) => p.key !== 'home').map((p, i) => {
+  const a = (ANGLES[i]! * Math.PI) / 180;
+  return {
+    ...p,
+    x: +(50 + RADIUS * Math.cos(a)).toFixed(2),
+    y: +(50 + RADIUS * Math.sin(a)).toFixed(2),
+  };
+});
+
+const profileLinks = (
+  [
+    ['ORCID', profile.links.orcid],
+    ['Scholar', profile.links.scholar],
+    ['arXiv', profile.links.arxiv],
+    ['GitHub', profile.links.github],
+  ] as const
+).filter(([, url]) => url);
 ---
 
-<BaseLayout lang={lang} route="">
+<BaseLayout lang={lang} route="" description={home.data.description}>
   <header class="container container--home top">
     <Logo lang={lang} />
     <LangSwitch lang={lang} route="" />
   </header>
 
   <main id="main" tabindex="-1" class="container container--home hero">
-    <div class="text">
-      <p class="meta">
-        {t('home.field')}
-        <br />
-        <span>{profile.location[lang]}</span>
-      </p>
+    <div class="intro">
+      <div class="who">
+        <Portrait lang={lang} variant="round" />
+        <p class="meta">
+          {t('home.field')}
+          <br />
+          <span>{profile.location[lang]}</span>
+        </p>
+      </div>
       <h1>
         {first}
         <br />
@@ -45,19 +68,38 @@ const profileLinks = [
       </h1>
       <p class="position">{profile.position[lang]}</p>
       <p class="institution">{profile.institution[lang]}</p>
+      {home.data.statement && <p class="statement">{home.data.statement}</p>}
+      {home.data.chips && (
+        <ul class="chips" role="list">
+          {home.data.chips.map((c) => (
+            <li class="chip">{c}</li>
+          ))}
+        </ul>
+      )}
+      <div class="actions">
+        <CvButton lang={lang} />
+        <a class="btn btn--secondary" href={localizePath(lang, 'publications')}>
+          {t('cta.publications')}
+        </a>
+      </div>
     </div>
 
-    <nav class="sections" aria-label={t('nav.sections')}>
-      <ol>
-        {sections.map((p) => (
-          <li>
-            <a href={localizePath(lang, p.route)}>
-              <span class="num">{p.num}</span>
-              {t(`nav.${p.key}`)}
-            </a>
-          </li>
-        ))}
-      </ol>
+    <nav class="orbit-wrap" aria-label={t('nav.sections')}>
+      <div class="orbit">
+        <span class="ring ring--orbit" aria-hidden="true"></span>
+        <span class="ring ring--inner" aria-hidden="true"></span>
+        <BlackHole class="orbit-bh" />
+        <ol>
+          {sections.map((s) => (
+            <li style={`--x:${s.x}%;--y:${s.y}%`}>
+              <a class="pill" href={localizePath(lang, s.route)}>
+                <span class="num">{s.num}</span>
+                {t(`nav.${s.key}`)}
+              </a>
+            </li>
+          ))}
+        </ol>
+      </div>
     </nav>
   </main>
 
@@ -68,7 +110,9 @@ const profileLinks = [
     {profileLinks.length > 0 && (
       <span class="links">
         {profileLinks.map(([label, url]) => (
-          <a href={url}>{label}</a>
+          <a href={url} rel="me">
+            {label}
+          </a>
         ))}
       </span>
     )}
@@ -89,18 +133,27 @@ const profileLinks = [
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    align-content: center;
     gap: 56px;
     padding-block: 24px 48px;
   }
   .hero:focus {
     outline: none;
   }
-  .text {
+
+  /* ----- Left column ----- */
+  .intro {
     flex: 1 1 480px;
     min-width: 0;
   }
-  .meta {
+  .who {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
     margin-bottom: 28px;
+  }
+  .meta {
     font-family: var(--font-mono);
     font-size: 0.875rem;
     line-height: 1.8;
@@ -119,21 +172,65 @@ const profileLinks = [
     font-size: 1.125rem;
   }
   .institution {
+    margin-bottom: 24px;
     color: var(--muted);
   }
-  .sections {
-    flex: 1 1 360px;
-    min-width: 0;
+  .statement {
+    max-width: 540px;
+    margin-bottom: 24px;
+    font-size: 1.125rem;
+    color: var(--text-2);
   }
-  .sections ol {
+  .chips {
+    margin-bottom: 32px;
+  }
+  .actions {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  /* ----- Orbit ----- */
+  .orbit-wrap {
+    flex: 1 1 460px;
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+  }
+  .orbit {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    aspect-ratio: 1 / 1;
+  }
+  .ring {
+    position: absolute;
+    border-radius: 50%;
+  }
+  .ring--orbit {
+    inset: 7%;
+    border: 1px dashed var(--line-3);
+  }
+  .ring--inner {
+    inset: 21%;
+    border: 1px solid var(--line);
+  }
+  .orbit :global(.orbit-bh) {
+    position: absolute;
+    inset: 0;
+  }
+  .orbit ol {
     margin: 0;
     padding: 0;
     list-style: none;
   }
-  .sections a {
+  .orbit li {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    transform: translate(-50%, -50%);
+  }
+  .pill {
     display: inline-flex;
     align-items: center;
     gap: 10px;
@@ -143,14 +240,17 @@ const profileLinks = [
     border-radius: var(--radius-pill);
     background: var(--surface);
     color: var(--text);
-    font-weight: 500;
     font-size: var(--fs-small);
+    font-weight: 500;
     text-decoration: none;
+    white-space: nowrap;
     transition:
       border-color 0.15s var(--ease),
-      box-shadow 0.15s var(--ease);
+      box-shadow 0.15s var(--ease),
+      color 0.15s var(--ease);
   }
-  .sections a:hover {
+  .pill:hover,
+  .pill:focus-visible {
     border-color: var(--accent);
     box-shadow: 0 0 18px var(--accent-glow);
     color: var(--heading);
@@ -160,6 +260,8 @@ const profileLinks = [
     font-size: 0.75rem;
     color: var(--accent);
   }
+
+  /* ----- Footer strip ----- */
   .strip {
     display: flex;
     flex-wrap: wrap;
@@ -177,5 +279,47 @@ const profileLinks = [
   }
   .links a:hover {
     color: var(--accent-hi);
+  }
+
+  /* ----- Phones: list instead of orbit ----- */
+  @media (max-width: 767px) {
+    .hero {
+      gap: 40px;
+      padding-top: 8px;
+    }
+    .orbit-wrap {
+      flex-basis: 100%;
+      justify-content: flex-start;
+    }
+    .orbit {
+      aspect-ratio: auto;
+      max-width: none;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .ring {
+      display: none;
+    }
+    .orbit :global(.orbit-bh) {
+      position: relative;
+      inset: auto;
+      width: 160px;
+      margin-inline: 8px;
+    }
+    .orbit ol {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .orbit li {
+      position: static;
+      transform: none;
+    }
+    .pill {
+      width: 100%;
+      min-height: 52px;
+      font-size: 1rem;
+    }
   }
 </style>

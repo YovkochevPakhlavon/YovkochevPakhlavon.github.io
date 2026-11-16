@@ -1,0 +1,161 @@
+---
+/** Teaching: course cards (src/content/courses/) and the teaching approach. */
+import { render } from 'astro:content';
+import PageLayout from '../layouts/PageLayout.astro';
+import PageIntro from '../components/PageIntro.astro';
+import FallbackNote from '../components/FallbackNote.astro';
+import { localizePath, useTranslations, type Lang } from '../i18n';
+import { getCourses, getPageText, isPlaceholder } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const other: Lang = lang === 'en' ? 'uz' : 'en';
+const { entry: page, fallback } = await getPageText('teaching', lang);
+const { Content: Intro } = await render(page);
+const courses = await getCourses();
+const sections = ['course.lectures', 'course.books', 'course.videos', 'course.tasks'] as const;
+---
+
+<PageLayout
+  lang={lang}
+  current="teaching"
+  title={page.data.title}
+  description={page.data.description}
+>
+  <PageIntro lang={lang} page="teaching" title={page.data.title}>
+    <div lang={fallback ? 'en' : lang}>
+      <Intro />
+      <FallbackNote lang={lang} show={fallback} />
+    </div>
+  </PageIntro>
+
+  <div class="grid">
+    {courses.map(({ id, data: c }) => (
+      <a class="course" href={localizePath(lang, `teaching/${id}`)}>
+        <span class="badges">
+          <span class="badge badge--accent">{c.level[lang]}</span>
+          <span class="badge">{t(`teachLang.${c.language}`)}</span>
+        </span>
+        <h2>{c.title[lang]}</h2>
+        <span class="original" lang={other}>
+          {c.title[other]}
+        </span>
+        <span class="parts mono">
+          {sections.map((k) => (
+            <span>{t(k).toLocaleLowerCase(lang)}</span>
+          ))}
+        </span>
+        <span class="open">{t('course.open')} →</span>
+      </a>
+    ))}
+    <div class="course todo">
+      <span class="badges">
+        <span class="badge">{t('teaching.year')}</span>
+      </span>
+      <h2>{t('teaching.another')}</h2>
+      <span class="original">{t('teaching.anotherText')}</span>
+    </div>
+  </div>
+
+  {page.data.approach && (
+    <section class="approach">
+      <h2>{t('teaching.approach')}</h2>
+      <p class:list={{ placeholder: isPlaceholder(page.data.approach) }}>{page.data.approach}</p>
+    </section>
+  )}
+</PageLayout>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr));
+    gap: 20px;
+    margin-top: 8px;
+  }
+  .course {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: clamp(24px, 3vw, 36px);
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius-card-lg);
+    background: var(--surface);
+    color: var(--text);
+    text-decoration: none;
+    transition:
+      border-color 0.15s var(--ease),
+      box-shadow 0.15s var(--ease);
+  }
+  a.course:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 24px rgba(242, 165, 65, 0.12);
+    color: var(--text);
+  }
+  .course.todo {
+    border-style: dashed;
+    border-color: var(--line-3);
+    background: transparent;
+  }
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .badge {
+    padding: 2px 10px;
+    border: 1px solid var(--line-3);
+    border-radius: var(--radius-pill);
+    color: var(--text-2);
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  .badge--accent {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .course h2 {
+    font-size: clamp(1.5rem, 1.3rem + 0.8vw, 1.75rem);
+    line-height: 1.2;
+  }
+  .original {
+    color: var(--muted);
+    font-style: italic;
+  }
+  .todo .original {
+    font-style: normal;
+  }
+  .parts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    color: var(--text-2);
+  }
+  .open {
+    margin-top: 8px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .approach {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px 40px;
+    margin-top: 72px;
+    padding-top: 48px;
+    border-top: 1px solid var(--line);
+  }
+  .approach h2 {
+    flex: 0 1 280px;
+    font-size: 1.75rem;
+  }
+  .approach p {
+    flex: 1 1 520px;
+    font-size: 1.125rem;
+    color: var(--text-2);
+  }
+  .approach p.placeholder {
+    color: var(--muted);
+  }
+</style>

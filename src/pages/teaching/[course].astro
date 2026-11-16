@@ -1,0 +1,13 @@
+---
+import Course from '../../views/Course.astro';
+import { getCourses } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const courses = await getCourses();
+  return courses.map((course) => ({ params: { course: course.id }, props: { course } }));
+}
+
+const { course } = Astro.props;
+---
+
+<Course lang="en" course={course} />

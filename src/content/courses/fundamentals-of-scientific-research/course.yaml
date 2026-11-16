@@ -1,0 +1,15 @@
+# Course settings. The course description is in en.md / uz.md next to this file.
+# Lectures, textbooks, videos and assignments are added here in Phase 4.
+order: 1
+title:
+  en: Fundamentals of Scientific Research in Physics
+  uz: Fizikada ilmiy tadqiqot asoslari
+level:
+  en: 4th year
+  uz: 4-kurs
+language: uz
+semester:
+  en: '[Semester]'
+  uz: '[Semestr]'
+hours: '[Hours]'
+syllabus: '' # e.g. files/research-fundamentals-syllabus.pdf

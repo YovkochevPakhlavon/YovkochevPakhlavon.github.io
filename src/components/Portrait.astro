@@ -1,0 +1,77 @@
+---
+/**
+ * Your portrait. Put a photo at src/assets/portrait.jpg (or .png/.webp) and Astro
+ * makes AVIF/WebP versions in the right sizes. Until then a placeholder is shown.
+ */
+import { Picture } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { profile } from '../lib/profile';
+import { useTranslations, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  variant: 'round' | 'large';
+}
+const { lang, variant } = Astro.props;
+const t = useTranslations(lang);
+
+const found = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/portrait.{jpg,jpeg,png,webp,avif}',
+  { eager: true },
+);
+const image = Object.values(found)[0]?.default;
+const alt = profile.name[lang];
+const sizes = variant === 'round' ? '120px' : '(max-width: 767px) 100vw, 340px';
+const widths = variant === 'round' ? [120, 240] : [340, 520, 680];
+---
+
+{image ? (
+  <Picture
+    src={image}
+    alt={alt}
+    formats={['avif', 'webp']}
+    widths={widths}
+    sizes={sizes}
+    loading="eager"
+    fetchpriority="high"
+    class:list={['portrait', variant]}
+  />
+) : (
+  <div class:list={['portrait', variant, 'empty']} role="img" aria-label={alt}>
+    {t('portrait.placeholder')}
+  </div>
+)}
+
+<style>
+  /* :global because <Picture> renders the <img> outside this component's scope. */
+  :global(.portrait) {
+    display: block;
+    flex: none;
+    object-fit: cover;
+    background: var(--surface);
+  }
+  :global(.portrait.round) {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    box-shadow: 0 0 24px var(--accent-glow);
+  }
+  :global(.portrait.large) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    border-radius: var(--radius-card);
+  }
+  :global(.portrait.empty) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: var(--fs-mono);
+  }
+  :global(.portrait.large.empty) {
+    border: 1px dashed var(--line-3);
+    font-size: var(--fs-small);
+  }
+</style>

@@ -1,0 +1,199 @@
+---
+/**
+ * One course page. Phase 2: breadcrumb, badges, title and the Overview.
+ * Phase 4 adds the tabs: Lectures · Textbooks · Video lessons · Assignments.
+ */
+import { render, type CollectionEntry } from 'astro:content';
+import PageLayout from '../layouts/PageLayout.astro';
+import FallbackNote from '../components/FallbackNote.astro';
+import { localizePath, useTranslations, type Lang } from '../i18n';
+import { getCourseText, isPlaceholder } from '../lib/content';
+import { publicFileExists, publicUrl } from '../lib/files';
+
+interface Props {
+  lang: Lang;
+  course: CollectionEntry<'courses'>;
+}
+const { lang, course } = Astro.props;
+const c = course.data;
+const t = useTranslations(lang);
+const other: Lang = lang === 'en' ? 'uz' : 'en';
+const { entry: text, fallback } = await getCourseText(course.id, lang);
+const { Content } = await render(text);
+const hasSyllabus = publicFileExists(c.syllabus);
+const facts = [
+  ['course.level', c.level[lang]],
+  ['course.language', t(`teachLang.${c.language}`)],
+  ['course.semester', c.semester[lang]],
+  ['course.hours', c.hours],
+] as const;
+---
+
+<PageLayout
+  lang={lang}
+  current="teaching"
+  route={`teaching/${course.id}`}
+  title={c.title[lang]}
+  description={`${c.title[lang]} — ${c.level[lang]}`}
+>
+  <nav class="crumbs mono" aria-label={t('nav.breadcrumb')}>
+    <a href={localizePath(lang, 'teaching')}>{t('nav.teaching')}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{c.title[lang]}</span>
+  </nav>
+
+  <div class="badges">
+    <span class="badge badge--accent">{c.level[lang]}</span>
+    <span class="badge">{t(`teachLang.${c.language}`)}</span>
+  </div>
+  <h1>{c.title[lang]}</h1>
+  <p class="original" lang={other}>
+    {c.title[other]}
+  </p>
+
+  <div class="tabs" aria-hidden="true">
+    <span class="tab is-active">{t('course.overview')}</span>
+  </div>
+
+  <div class="overview">
+    <div class="about">
+      <h2>
+        {t('course.about')}
+        <FallbackNote lang={lang} show={fallback} />
+      </h2>
+      <div class="prose" lang={fallback ? 'en' : lang}>
+        <Content />
+      </div>
+      {hasSyllabus ? (
+        <a class="btn btn--primary" href={publicUrl(c.syllabus)} download>
+          {t('course.syllabus')}
+        </a>
+      ) : (
+        <span class="btn missing">{t('course.syllabusMissing')}</span>
+      )}
+    </div>
+    <dl class="facts">
+      {facts.map(([k, v]) => (
+        <div>
+          <dt>{t(k)}</dt>
+          <dd class:list={{ placeholder: isPlaceholder(v) }}>{v}</dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+
+  <p class="next-phase">{t('course.nextPhase')}</p>
+</PageLayout>
+
+<style>
+  .crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: -24px 0 32px;
+  }
+  .crumbs a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+  }
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .badge {
+    padding: 2px 10px;
+    border: 1px solid var(--line-3);
+    border-radius: var(--radius-pill);
+    color: var(--text-2);
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  .badge--accent {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  h1 {
+    margin-bottom: 8px;
+    font-size: clamp(2rem, 1.4rem + 2.6vw, 3rem);
+    line-height: 1.1;
+  }
+  .original {
+    margin-bottom: 40px;
+    font-size: var(--fs-lead);
+    font-style: italic;
+    color: var(--muted);
+  }
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 40px;
+    border-bottom: 1px solid var(--line);
+  }
+  .tab {
+    padding: 12px 18px;
+    border-bottom: 2px solid transparent;
+    font-size: var(--fs-small);
+    font-weight: 500;
+    color: var(--text-2);
+  }
+  .tab.is-active {
+    border-bottom-color: var(--accent);
+    color: var(--heading);
+  }
+  .overview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+  }
+  .about {
+    flex: 1 1 560px;
+    min-width: 0;
+  }
+  .about h2 {
+    margin-bottom: 16px;
+    font-size: 1.625rem;
+  }
+  .prose {
+    margin-bottom: 24px;
+    font-size: 1.0625rem;
+    color: var(--text-2);
+  }
+  .missing {
+    border: 1px dashed var(--line-3);
+    color: var(--muted);
+    cursor: default;
+  }
+  .facts {
+    flex: 0 1 340px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    align-self: flex-start;
+    margin: 0;
+    padding: 28px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+  }
+  dt {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  dd {
+    margin: 4px 0 0;
+    font-weight: 600;
+  }
+  dd.placeholder {
+    font-weight: 400;
+  }
+  .next-phase {
+    margin-top: 56px;
+    color: var(--muted);
+    font-size: var(--fs-small);
+  }
+</style>

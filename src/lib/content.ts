@@ -1,0 +1,67 @@
+/**
+ * Content helpers. Every lookup takes a language; if the Uzbek file is missing we use
+ * the English one and return `fallback: true` so the page can show a small "(English)" note.
+ */
+import { getCollection, getEntry, type CollectionEntry } from 'astro:content';
+import { DEFAULT_LANG, type Lang } from '../i18n';
+
+export interface Localized<T> {
+  entry: T;
+  /** True when the requested language was missing and English is shown instead. */
+  fallback: boolean;
+}
+
+async function pick<T>(
+  load: (l: Lang) => Promise<T | undefined>,
+  lang: Lang,
+  what: string,
+): Promise<Localized<T>> {
+  const own = await load(lang);
+  if (own) return { entry: own, fallback: false };
+  const en = await load(DEFAULT_LANG);
+  if (!en) throw new Error(`Missing content: ${what} (no ${lang} or ${DEFAULT_LANG} file)`);
+  return { entry: en, fallback: lang !== DEFAULT_LANG };
+}
+
+export const getAbout = (lang: Lang) =>
+  pick(async (l) => await getEntry('about', l), lang, 'src/content/about/');
+
+export type PageName = 'home' | 'research' | 'publications' | 'projects' | 'teaching' | 'contact';
+export const getPageText = (page: PageName, lang: Lang) =>
+  pick(async (l) => await getEntry('pages', `${page}/${l}`), lang, `src/content/pages/${page}/`);
+
+/** Research themes in order. Each theme falls back to English on its own. */
+export async function getResearchThemes(
+  lang: Lang,
+): Promise<Localized<CollectionEntry<'research'>>[]> {
+  const all = await getCollection('research');
+  const byId = new Map(all.map((e) => [e.id, e]));
+  return all
+    .filter((e) => e.id.startsWith(`${DEFAULT_LANG}/`))
+    .map((en) => {
+      const own = byId.get(en.id.replace(`${DEFAULT_LANG}/`, `${lang}/`));
+      return own ? { entry: own, fallback: false } : { entry: en, fallback: lang !== DEFAULT_LANG };
+    })
+    .sort((a, b) => a.entry.data.order - b.entry.data.order);
+}
+
+export async function getProjects() {
+  const all = await getCollection('projects');
+  return all.sort((a, b) => a.data.order - b.data.order || a.data.name.localeCompare(b.data.name));
+}
+
+export async function getCourses() {
+  const all = await getCollection('courses');
+  return all.sort((a, b) => a.data.order - b.data.order || a.id.localeCompare(b.id));
+}
+
+export const getCourseText = (slug: string, lang: Lang) =>
+  pick(
+    async (l) => await getEntry('courseText', `${slug}/${l}`),
+    lang,
+    `src/content/courses/${slug}/`,
+  );
+
+/** True when a text is (or contains) a visible placeholder such as "[MSc university]". */
+export const isPlaceholder = (value: string | undefined | null): boolean =>
+  !value || /\[[^\]]+\]/.test(value);

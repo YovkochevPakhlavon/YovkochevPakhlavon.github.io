@@ -1,0 +1,217 @@
+---
+/** About: portrait + bio + CV, academic path, interests, achievements. Text: src/content/about/. */
+import { render } from 'astro:content';
+import PageLayout from '../layouts/PageLayout.astro';
+import Portrait from '../components/Portrait.astro';
+import CvButton from '../components/CvButton.astro';
+import FallbackNote from '../components/FallbackNote.astro';
+import { eyebrow, useTranslations, type Lang } from '../i18n';
+import { getAbout, isPlaceholder } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const { entry, fallback } = await getAbout(lang);
+const { Content } = await render(entry);
+const d = entry.data;
+const contentLang = fallback ? 'en' : lang;
+---
+
+<PageLayout lang={lang} current="about" title={d.title} description={d.description}>
+  <div lang={contentLang}>
+    <section class="hero">
+      <div class="photo">
+        <Portrait lang={lang} variant="large" />
+      </div>
+      <div class="bio">
+        <p class="eyebrow">{eyebrow(lang, 'about')}</p>
+        <h1>
+          {d.title}
+          <FallbackNote lang={lang} show={fallback} />
+        </h1>
+        <div class="prose">
+          <Content />
+        </div>
+        <CvButton lang={lang} label="about.cvPdf" />
+      </div>
+    </section>
+
+    <section class="block" aria-labelledby="path">
+      <h2 id="path">{t('about.path')}</h2>
+      <ol class="timeline">
+        {d.timeline.map((item) => (
+          <li class:list={{ todo: isPlaceholder(item.when) }}>
+            <p class="when">{item.when}</p>
+            <p class="what">{item.title}</p>
+            {item.place && <p class="where">{item.place}</p>}
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section class="block cards">
+      <div class="card">
+        <h2>{t('about.interests')}</h2>
+        <ul>
+          {d.interests.map((i) => (
+            <li class:list={{ placeholder: isPlaceholder(i) }}>{i}</li>
+          ))}
+        </ul>
+      </div>
+      <div class="card">
+        <h2>{t('about.beyond')}</h2>
+        <ul>
+          {d.beyond.map((i) => (
+            <li class:list={{ placeholder: isPlaceholder(i) }}>{i}</li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <section aria-labelledby="achievements">
+      <h2 id="achievements">{t('about.achievements')}</h2>
+      <div class="achievements">
+        {d.achievements.map((a) => (
+          <div class:list={['achievement', { todo: isPlaceholder(a.title) }]}>
+            <p class:list={['year', { muted: isPlaceholder(a.year) }]}>{a.year}</p>
+            <h3>{a.title}</h3>
+            {a.text && <p class="text">{a.text}</p>}
+          </div>
+        ))}
+      </div>
+    </section>
+  </div>
+</PageLayout>
+
+<style>
+  .hero {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 56px;
+    align-items: flex-start;
+    margin-bottom: var(--section-gap);
+  }
+  .photo {
+    flex: 0 1 340px;
+    min-width: 240px;
+  }
+  .bio {
+    flex: 1 1 520px;
+    min-width: 0;
+  }
+  h1 {
+    margin-bottom: 24px;
+  }
+  .prose {
+    margin-bottom: 32px;
+    font-size: var(--fs-lead);
+    color: var(--text-2);
+  }
+  .prose :global(p + p) {
+    margin-top: 16px;
+  }
+  .block {
+    margin-bottom: var(--section-gap);
+  }
+  h2 {
+    margin-bottom: 32px;
+  }
+
+  /* Timeline */
+  .timeline {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-left: 1px solid var(--line-2);
+  }
+  .timeline li {
+    position: relative;
+    padding: 0 0 36px 32px;
+  }
+  .timeline li:last-child {
+    padding-bottom: 0;
+  }
+  .timeline li::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 6px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .timeline li.todo::before {
+    background: var(--line-3);
+  }
+  .when {
+    margin-bottom: 4px;
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    color: var(--accent);
+  }
+  .todo .when {
+    color: var(--muted);
+  }
+  .what {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--heading);
+  }
+  .where {
+    color: var(--muted);
+  }
+
+  /* Interest cards */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+    gap: 20px;
+  }
+  .card h2 {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+  }
+  .card ul {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding-left: 20px;
+    color: var(--text-2);
+  }
+
+  /* Achievements */
+  .achievements {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+    gap: 20px;
+  }
+  .achievement {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    padding: 28px;
+  }
+  .achievement.todo {
+    border-style: dashed;
+    border-color: var(--line-3);
+  }
+  .year {
+    margin-bottom: 12px;
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    color: var(--accent);
+  }
+  .year.muted {
+    color: var(--muted);
+  }
+  .achievement h3 {
+    margin-bottom: 6px;
+  }
+  .text {
+    font-size: var(--fs-small);
+    color: var(--muted);
+  }
+</style>

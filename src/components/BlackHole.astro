@@ -1,0 +1,70 @@
+---
+/**
+ * CSS-only black hole (from the mockups). `disk` = hole with tilted accretion disk,
+ * fills a square box; `simple` = small glowing hole. Decorative only.
+ * Phase 6 puts a WebGL version on Home and keeps this one as the fallback.
+ */
+interface Props {
+  variant?: 'disk' | 'simple';
+  class?: string;
+}
+const { variant = 'disk', class: className } = Astro.props;
+---
+
+<div class:list={['bh', variant, className]} aria-hidden="true">
+  {variant === 'disk' && (
+    <>
+      <span class="disk-back" />
+      <span class="hole" />
+      <span class="disk-front" />
+    </>
+  )}
+  {variant === 'simple' && <span class="hole" />}
+</div>
+
+<style>
+  .bh {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    pointer-events: none;
+  }
+  .bh > span {
+    position: absolute;
+    box-sizing: border-box;
+    border-radius: 50%;
+  }
+  .disk .disk-back,
+  .disk .disk-front {
+    left: 4%;
+    top: 40%;
+    width: 92%;
+    height: 20%;
+    transform: rotate(-10deg);
+  }
+  .disk .disk-back {
+    border: 2px solid rgba(242, 165, 65, 0.5);
+    box-shadow: 0 0 40px rgba(242, 165, 65, 0.2);
+  }
+  .disk .hole {
+    left: 34%;
+    top: 34%;
+    width: 32%;
+    height: 32%;
+    background: #000;
+    box-shadow:
+      0 0 0 2px var(--accent),
+      0 0 36px 6px rgba(242, 165, 65, 0.45),
+      0 0 110px 26px rgba(242, 165, 65, 0.12);
+  }
+  .disk .disk-front {
+    border: 2px solid transparent;
+    border-bottom-color: rgba(247, 194, 122, 0.9);
+  }
+  .simple .hole {
+    inset: 0;
+    background: #000;
+    box-shadow:
+      0 0 0 2px var(--accent),
+      0 0 24px 4px rgba(242, 165, 65, 0.4);
+  }
+</style>

@@ -1,0 +1,22 @@
+---
+/** Small "(English)" note shown when an Uzbek text is missing and English is used instead. */
+import { useTranslations, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  show: boolean;
+}
+const { lang, show } = Astro.props;
+---
+
+{show && <span class="fallback mono">{useTranslations(lang)('fallback.english')}</span>}
+
+<style>
+  .fallback {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 0.75rem;
+    letter-spacing: 0;
+    vertical-align: middle;
+  }
+</style>

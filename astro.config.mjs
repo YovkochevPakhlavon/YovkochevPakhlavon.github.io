@@ -11,6 +11,11 @@ export default defineConfig({
   // Astro 7 defaults to 'jsx', which removes spaces between inline elements.
   // Keep normal HTML whitespace so text edited in content files renders as written.
   compressHTML: true,
+  // /cv and /uz/cv always point to the current CV file (public/files/cv.pdf).
+  redirects: {
+    '/cv': '/files/cv.pdf',
+    '/uz/cv': '/files/cv.pdf',
+  },
   i18n: {
     locales: ['en', 'uz'],
     defaultLocale: 'en',
