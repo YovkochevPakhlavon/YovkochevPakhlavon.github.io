@@ -57,8 +57,23 @@ const uz: Record<UiKey, string> = {
   'pubs.bibAll': 'Barçasini yuklab oliş (BibTeX)',
   'status.revision': 'Qayta körib çiqişda',
   'status.submitted': 'Yuborilgan',
-  'pubs.nextPhase':
-    'Filtrlar, DOI/arXiv havolalari va BibTeX eksporti bilan töliq röyxat keyingi bosqiçda publications.bib faylidan yaratiladi.', // REVIEW
+  'status.accepted': 'Qabul qilingan', // REVIEW
+  'status.published': 'Çop etilgan',
+  'pubs.type.journal': 'Jurnal maqolasi', // REVIEW
+  'pubs.type.preprint': 'Preprint', // REVIEW
+  'pubs.type.thesis': 'PhD dissertatsiyasi', // REVIEW
+  'pubs.type.textbook': 'Darslik', // REVIEW
+  'pubs.filterLabel': 'Naşrlarni saralaş', // REVIEW
+  'pubs.theme': 'Mavzu', // REVIEW
+  'pubs.clearTheme': 'Barça mavzularni körsatiş', // REVIEW
+  'pubs.empty': 'Bu bölimda hozirça naşrlar yöq.', // REVIEW
+  'pubs.shown': 'Körsatilgan naşrlar:', // REVIEW
+  'pubs.supervisor': 'Ilmiy rahbar', // REVIEW
+  'pubs.copy': 'Nusxa oliş', // REVIEW
+  'pubs.copied': 'Nusxa olindi', // REVIEW
+  'pubs.copyFailed': 'Nusxa oliş uçun matnni belgilang', // REVIEW
+  'pubs.download': '.bib yuklab oliş', // REVIEW
+  'pubs.links': 'Havolalar:', // REVIEW
 
   // Projects
   'projects.featured': 'Asosiy loyiha', // REVIEW

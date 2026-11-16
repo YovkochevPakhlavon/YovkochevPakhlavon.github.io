@@ -1,14 +1,19 @@
 ---
 /**
- * Publications. Phase 2: page header and profile links.
- * Phase 3 generates the list, filters and BibTeX export from src/data/publications.bib.
+ * Publications, generated from src/data/publications.bib.
+ * Newest first, grouped by year. Filter pills (All / Published / Under review / Thesis /
+ * Textbooks) and the ?theme= filter from the Research page are applied by a small script;
+ * the state lives in the URL (?type=thesis&theme=qpo) so links can be shared.
+ * Without JavaScript the full list is shown.
  */
 import { render } from 'astro:content';
 import PageLayout from '../layouts/PageLayout.astro';
 import FallbackNote from '../components/FallbackNote.astro';
 import { eyebrow, useTranslations, type Lang } from '../i18n';
-import { getPageText } from '../lib/content';
+import type { UiKey } from '../i18n/en';
+import { getPageText, getResearchThemes } from '../lib/content';
 import { profile } from '../lib/profile';
+import { getPublications, groupByYear, type Category, type Status } from '../lib/publications';
 
 interface Props {
   lang: Lang;
@@ -17,12 +22,36 @@ const { lang } = Astro.props;
 const t = useTranslations(lang);
 const { entry: page, fallback } = await getPageText('publications', lang);
 const { Content: Intro } = await render(page);
+const pubs = await getPublications();
+const groups = groupByYear(pubs);
+const themeNames = Object.fromEntries(
+  (await getResearchThemes(lang)).map(({ entry }) => [entry.data.tag, entry.data.title]),
+);
+
+const filters: { id: 'all' | Category; label: UiKey }[] = [
+  { id: 'all', label: 'pubs.all' },
+  { id: 'published', label: 'pubs.published' },
+  { id: 'review', label: 'pubs.review' },
+  { id: 'thesis', label: 'pubs.thesis' },
+  { id: 'textbook', label: 'pubs.textbooks' },
+];
+const count = (id: 'all' | Category) =>
+  id === 'all' ? pubs.length : pubs.filter((p) => p.categories.includes(id)).length;
+
+const statusLabel: Record<Status, UiKey> = {
+  'under-revision': 'status.revision',
+  submitted: 'status.submitted',
+  accepted: 'status.accepted',
+  published: 'status.published',
+};
+
 const links = (
   [
-    ['Google Scholar', profile.links.scholar],
-    ['ORCID', profile.links.orcid],
+    ['Google Scholar ↗', profile.links.scholar],
+    ['ORCID ↗', profile.links.orcid],
   ] as const
 ).filter(([, url]) => url);
+const base = import.meta.env.BASE_URL;
 ---
 
 <PageLayout
@@ -31,28 +60,243 @@ const links = (
   title={page.data.title}
   description={page.data.description}
 >
-  <p class="eyebrow">{eyebrow(lang, 'publications')}</p>
-  <div class="head">
-    <div>
-      <h1>{page.data.title}</h1>
-      <div class="lead" lang={fallback ? 'en' : lang}>
-        <Intro />
-        <FallbackNote lang={lang} show={fallback} />
+  <div
+    data-pubs
+    data-theme-names={JSON.stringify(themeNames)}
+    data-shown={t('pubs.shown')}
+    data-copied={t('pubs.copied')}
+    data-copy-failed={t('pubs.copyFailed')}
+  >
+    <p class="eyebrow">{eyebrow(lang, 'publications')}</p>
+    <div class="head">
+      <div class="head-text">
+        <h1>{page.data.title}</h1>
+        <div class="lead" lang={fallback ? 'en' : lang}>
+          <Intro />
+          <FallbackNote lang={lang} show={fallback} />
+        </div>
       </div>
-    </div>
-    {links.length > 0 && (
-      <div class="links">
+      <div class="top-links">
         {links.map(([label, url]) => (
           <a href={url} rel="me">
-            {label} ↗
+            {label}
           </a>
         ))}
+        <a href={`${base}publications/all.bib`} download="yovkochev-publications.bib">
+          {t('pubs.bibAll')}
+        </a>
       </div>
-    )}
-  </div>
+    </div>
 
-  <p class="next-phase card">{t('pubs.nextPhase')}</p>
+    <div class="filters js-only" role="group" aria-label={t('pubs.filterLabel')}>
+      {filters.map((f) => (
+        <button
+          type="button"
+          class="pill"
+          data-filter={f.id}
+          aria-pressed={f.id === 'all' ? 'true' : 'false'}
+        >
+          {t(f.label)}
+          <span class="count" data-count>
+            {count(f.id)}
+          </span>
+        </button>
+      ))}
+    </div>
+
+    <p class="theme-chip" data-theme-chip hidden>
+      <span>
+        {t('pubs.theme')}: <strong data-theme-name></strong>
+      </span>
+      <button type="button" data-clear-theme aria-label={t('pubs.clearTheme')}>
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M6 6l12 12M18 6 6 18"></path>
+        </svg>
+      </button>
+    </p>
+    <p class="visually-hidden" aria-live="polite" data-live></p>
+
+    {groups.map((g) => (
+      <section class="year" data-year>
+        <h2 class:list={['year-label', { placeholder: !/^\d{4}$/.test(g.label) }]}>{g.label}</h2>
+        <ol class="list" role="list">
+          {g.items.map((p) => {
+            const uzTitle = lang === 'uz' && p.titleUzHtml;
+            return (
+              <li
+                class="pub"
+                id={p.key}
+                data-cats={p.categories.join(' ')}
+                data-themes={p.themes.join(' ')}
+              >
+                <div class="meta">
+                  <span class="type">{t(`pubs.type.${p.pubtype}`)}</span>
+                  {p.status && p.status !== 'published' && (
+                    <span class={`status status--${p.status}`}>{t(statusLabel[p.status])}</span>
+                  )}
+                </div>
+                <h3 set:html={uzTitle || p.titleHtml} />
+                {uzTitle && <p class="alt-title" lang="en" set:html={p.titleHtml} />}
+                <p class="authors">
+                  <Fragment set:html={p.authorsHtml} />
+                  {p.supervisor && (
+                    <span class="supervisor">
+                      · {t('pubs.supervisor')}: {p.supervisor}
+                    </span>
+                  )}
+                </p>
+                {(p.venue || p.details) && (
+                  <p class="venue">
+                    <em class:list={{ placeholder: /\[[^\]]*\]/.test(p.venue) }}>{p.venue}</em>
+                    {p.details && ` ${p.details}`}
+                  </p>
+                )}
+                <div class="actions" role="group" aria-label={`${t('pubs.links')} ${p.titleText}`}>
+                  {p.doi && (
+                    <a class="act" href={`https://doi.org/${p.doi}`}>
+                      DOI
+                    </a>
+                  )}
+                  {p.arxiv && (
+                    <a class="act" href={`https://arxiv.org/abs/${p.arxiv}`}>
+                      arXiv
+                    </a>
+                  )}
+                  {p.pdf && (
+                    <a class="act" href={p.pdf}>
+                      PDF
+                    </a>
+                  )}
+                  {p.url && !p.doi && (
+                    <a class="act" href={p.url}>
+                      URL
+                    </a>
+                  )}
+                  {p.bibtex && (
+                    <details class="bib">
+                      <summary class="act">BibTeX</summary>
+                      <div class="bib-panel">
+                        <pre data-bib>{p.bibtex}</pre>
+                        <div class="bib-actions">
+                          <button type="button" class="act js-only" data-copy>
+                            {t('pubs.copy')}
+                          </button>
+                          <a
+                            class="act"
+                            href={`${base}publications/bib/${p.key}.bib`}
+                            download={`${p.key}.bib`}
+                          >
+                            {t('pubs.download')}
+                          </a>
+                        </div>
+                      </div>
+                    </details>
+                  )}
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      </section>
+    ))}
+    <p class="empty" data-empty hidden>
+      {t('pubs.empty')}
+    </p>
+  </div>
 </PageLayout>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-pubs]');
+  if (root) {
+    const names: Record<string, string> = JSON.parse(root.dataset.themeNames ?? '{}');
+    const items = [...root.querySelectorAll<HTMLElement>('.pub')];
+    const years = [...root.querySelectorAll<HTMLElement>('[data-year]')];
+    const buttons = [...root.querySelectorAll<HTMLButtonElement>('[data-filter]')];
+    const chip = root.querySelector<HTMLElement>('[data-theme-chip]')!;
+    const live = root.querySelector<HTMLElement>('[data-live]')!;
+    const empty = root.querySelector<HTMLElement>('[data-empty]')!;
+    const ids = buttons.map((b) => b.dataset.filter!);
+
+    const params = new URLSearchParams(location.search);
+    let type = ids.includes(params.get('type') ?? '') ? params.get('type')! : 'all';
+    let theme = names[params.get('theme') ?? ''] ? params.get('theme')! : '';
+
+    const has = (el: HTMLElement, attr: 'cats' | 'themes', v: string) =>
+      (el.dataset[attr] ?? '').split(' ').includes(v);
+    const matchTheme = (el: HTMLElement) => !theme || has(el, 'themes', theme);
+    const matchType = (el: HTMLElement, id: string) => id === 'all' || has(el, 'cats', id);
+
+    function apply(announce: boolean) {
+      let shown = 0;
+      for (const el of items) {
+        const ok = matchTheme(el) && matchType(el, type);
+        el.hidden = !ok;
+        if (ok) shown++;
+      }
+      for (const y of years) y.hidden = !y.querySelector('.pub:not([hidden])');
+      for (const b of buttons) {
+        const id = b.dataset.filter!;
+        b.setAttribute('aria-pressed', String(id === type));
+        b.querySelector('[data-count]')!.textContent = String(
+          items.filter((el) => matchTheme(el) && matchType(el, id)).length,
+        );
+      }
+      chip.hidden = !theme;
+      if (theme) chip.querySelector('[data-theme-name]')!.textContent = names[theme] ?? theme;
+      empty.hidden = shown > 0;
+      if (announce) live.textContent = `${root!.dataset.shown} ${shown}`;
+
+      const url = new URL(location.href);
+      if (type === 'all') url.searchParams.delete('type');
+      else url.searchParams.set('type', type);
+      if (theme) url.searchParams.set('theme', theme);
+      else url.searchParams.delete('theme');
+      history.replaceState(null, '', url);
+    }
+
+    buttons.forEach((b) =>
+      b.addEventListener('click', () => {
+        type = b.dataset.filter!;
+        apply(true);
+      }),
+    );
+    chip.querySelector('[data-clear-theme]')!.addEventListener('click', () => {
+      theme = '';
+      apply(true);
+      buttons.find((b) => b.dataset.filter === type)?.focus();
+    });
+
+    root.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+      const label = btn.textContent ?? '';
+      btn.addEventListener('click', async () => {
+        const pre = btn.closest('.bib-panel')!.querySelector<HTMLElement>('[data-bib]')!;
+        try {
+          await navigator.clipboard.writeText(pre.textContent ?? '');
+          btn.textContent = root.dataset.copied ?? 'Copied';
+        } catch {
+          const range = document.createRange();
+          range.selectNodeContents(pre);
+          const sel = getSelection();
+          sel?.removeAllRanges();
+          sel?.addRange(range);
+          btn.textContent = root.dataset.copyFailed ?? '';
+        }
+        setTimeout(() => (btn.textContent = label), 2000);
+      });
+    });
+
+    apply(false);
+  }
+</script>
 
 <style>
   .head {
@@ -63,24 +307,261 @@ const links = (
     gap: 20px;
     margin-bottom: 40px;
   }
+  .head-text {
+    min-width: 0;
+  }
   h1 {
     margin-bottom: 12px;
   }
-  .links {
+  .top-links {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 4px 20px;
     font-size: var(--fs-small);
   }
-  .links a {
+  .top-links a {
     display: inline-flex;
     align-items: center;
     min-height: var(--tap);
   }
-  .next-phase {
-    border-style: dashed;
-    border-color: var(--line-3);
+
+  /* Filters */
+  :global(html:not(.js)) .js-only {
+    display: none !important;
+  }
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: var(--tap);
+    padding: 0 18px;
+    border: 1px solid var(--line-3);
+    border-radius: var(--radius-pill);
     background: transparent;
+    color: var(--text);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      border-color 0.15s var(--ease),
+      background-color 0.15s var(--ease);
+  }
+  .pill:hover {
+    border-color: var(--accent);
+  }
+  .pill[aria-pressed='true'] {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 600;
+  }
+  .count {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    opacity: 0.8;
+  }
+  .theme-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 24px;
+    padding: 2px 4px 2px 14px;
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius-pill);
+    background: var(--surface-2);
+    color: var(--text-2);
+    font-size: 0.875rem;
+  }
+  .theme-chip strong {
+    color: var(--heading);
+    font-weight: 600;
+  }
+  .theme-chip button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-2);
+    cursor: pointer;
+  }
+  .theme-chip button:hover {
+    background: var(--line-2);
+    color: var(--heading);
+  }
+
+  /* List */
+  .year + .year {
+    margin-top: 40px;
+  }
+  .year-label {
+    margin-bottom: 16px;
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: var(--accent);
+  }
+  .year-label.placeholder {
+    color: var(--muted);
+  }
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pub {
+    padding: clamp(20px, 3vw, 28px);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    scroll-margin-top: 24px;
+  }
+  .pub:target {
+    border-color: var(--accent);
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .type {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .status {
+    padding: 1px 10px;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-pill);
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  .status--submitted {
+    border-color: var(--info);
+    color: var(--info);
+  }
+  .pub h3 {
+    margin-bottom: 6px;
+    font-family: var(--font-heading);
+    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.3125rem);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+  }
+  .alt-title {
+    margin: -2px 0 8px;
+    font-size: var(--fs-small);
+    color: var(--muted);
+  }
+  .authors {
+    margin-bottom: 4px;
+    font-size: var(--fs-small);
+    color: var(--text-2);
+  }
+  .authors :global(strong) {
+    color: var(--heading);
+    font-weight: 600;
+  }
+  .authors :global(.placeholder),
+  .supervisor {
+    color: var(--muted);
+  }
+  .venue {
+    margin-bottom: 14px;
+    font-size: var(--fs-small);
+    color: var(--muted);
+  }
+  .venue em {
+    color: var(--text-3);
+  }
+  .venue em.placeholder {
+    color: var(--muted);
+  }
+
+  /* Link buttons */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .act {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color 0.15s var(--ease);
+  }
+  .act:hover {
+    border-color: var(--accent);
+    color: var(--heading);
+  }
+  .bib summary {
+    list-style: none;
+  }
+  .bib summary::-webkit-details-marker {
+    display: none;
+  }
+  .bib {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .bib[open] {
+    flex-basis: 100%;
+    width: 100%;
+  }
+  .bib[open] summary {
+    border-color: var(--accent);
+  }
+  .bib-panel {
+    margin-top: 10px;
+  }
+  .bib pre {
+    max-width: 100%;
+    margin: 0 0 10px;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--code-bg);
+    color: var(--text-2);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    overflow-x: auto;
+  }
+  .bib-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .empty {
+    padding: 28px;
+    border: 1px dashed var(--line-3);
+    border-radius: var(--radius-card);
     color: var(--muted);
   }
 </style>

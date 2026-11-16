@@ -32,6 +32,12 @@ degree:
   en: PhD, 2026 (Theoretical Physics)
   uz: PhD, 2026 (Nazariy fizika)
 
+# Family names that mean you in publications.bib (shown in bold in author lists).
+bibtexNames:
+  - Yovkochev
+  - Yovqochev
+  - Yovqoçev
+
 # Professional email. Empty until you fill it in (see TODO-CONTENT.md).
 email: ''
 

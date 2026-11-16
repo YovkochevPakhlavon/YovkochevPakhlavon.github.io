@@ -45,6 +45,10 @@ after each phase run `npm run check && npm run build`, list what to look at, com
 - Text containing `[...]` is a placeholder: `isPlaceholder()` styles it muted/dashed.
 - Portrait: drop `src/assets/portrait.{jpg,png,webp}`; `Portrait.astro` optimizes it (AVIF/WebP).
 - Files in `public/files/` are checked at build time (`src/lib/files.ts`); missing → dashed placeholder, never a broken link.
+- Publications: `src/data/publications.bib` → `src/lib/publications.ts` (validation, sorting, safe title HTML,
+  clean BibTeX without website fields) → `src/views/Publications.astro`; downloads at `/publications/all.bib`
+  and `/publications/bib/<key>.bib`. Parser `@retorquere/bibtex-parser/js`: its `sentenceCase: false` is
+  overridden by its own defaults, so titles use `fieldMode: { title: 'richtext' }` to keep the author's casing.
 - Pages for later phases (`research/tools`, `research/talks`, `notes`) use `src/views/SectionStub.astro`.
 
 Every page exists in both languages. Links always go through `localizePath(lang, route)`;

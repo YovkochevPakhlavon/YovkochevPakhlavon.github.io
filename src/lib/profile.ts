@@ -34,6 +34,9 @@ const ProfileSchema = z.object({
   institution: bilingual('institution'),
   location: bilingual('location'),
   degree: bilingual('degree'),
+  bibtexNames: z
+    .array(text('bibtexNames item'))
+    .min(1, '"bibtexNames" needs at least one family name, e.g. Yovkochev'),
   email: z.union([z.literal(''), z.email({ error: '"email" must be an email address or \'\'' })]),
   links: z.object({
     orcid: optionalUrl('orcid'),

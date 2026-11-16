@@ -34,10 +34,18 @@ On the site, placeholders look like `[this]` and are shown in grey or with a das
 - [ ] Achievements — year BlackPy v0.2 was released (the mockup said 2026; not confirmed)
 - [ ] Achievements — awards, grants or fellowships (with years)
 
-## Publications (Phase 3) — `src/data/publications.bib`
+## Publications — `src/data/publications.bib`
 
-- [ ] Co-authors and year of "Quasi-periodic oscillations of anisotropic black holes" (Annals of Physics, under revision)
-- [ ] Co-authors, journal and year of "Constraining Dark Matter Halo Effects on Rotating Black Hole Shadows with EHT Observations" (submitted)
+- [ ] "Quasi-periodic oscillations of anisotropic black holes" (Annals of Physics, under revision):
+      full author list **in the correct order** (currently `Yovkochev, Pakhlavon and {[co-authors]}`) and year
+- [ ] "Constraining Dark Matter Halo Effects on Rotating Black Hole Shadows with EHT Observations" (submitted):
+      full author list in order, journal and year
+- [ ] arXiv IDs (`eprint = {…}` + `archiveprefix = {arXiv}`) and DOIs, once they exist
+- [ ] Thesis: check `school` — written as "Scientific Council, Institute of Fundamental and Applied Research (TIIAME)"
+- [ ] Check the theme tags Claude assigned from the titles: QPO paper → `qpo, anisotropic`;
+      EHT paper → `shadows, cosmology`; thesis → `anisotropic`
+- [ ] Other papers, preprints and textbooks (paste their BibTeX into `src/data/publications.bib`)
+- [ ] Optional: thesis abstract PDF (`pdf = {files/…}`) — the mockup showed an "Abstract PDF" button
 
 ## Projects — `src/content/projects/`
 
