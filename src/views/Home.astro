@@ -89,6 +89,7 @@ const profileLinks = (
         <span class="ring ring--orbit" aria-hidden="true"></span>
         <span class="ring ring--inner" aria-hidden="true"></span>
         <BlackHole class="orbit-bh" />
+        <canvas class="orbit-gl" aria-hidden="true" data-bh-canvas></canvas>
         <ol>
           {sections.map((s) => (
             <li style={`--x:${s.x}%;--y:${s.y}%`}>
@@ -118,6 +119,36 @@ const profileLinks = (
     )}
   </footer>
 </BaseLayout>
+
+<script>
+  // Live WebGL black hole: loaded only on wide screens, after the page has loaded and
+  // the browser is idle. Until its first frame (or if WebGL fails) the CSS one is shown.
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-bh-canvas]');
+  const orbit = canvas?.closest<HTMLElement>('.orbit');
+  const wide = matchMedia('(min-width: 768px)');
+  let started = false;
+
+  const start = () => {
+    if (started || !canvas || !orbit || !wide.matches) return;
+    started = true;
+    import('../scripts/blackhole/index')
+      .then(({ mountBlackHole }) =>
+        mountBlackHole(canvas, {
+          onReady: () => orbit.classList.add('is-webgl'),
+          onFail: () => orbit.classList.remove('is-webgl'),
+        }),
+      )
+      .catch(() => orbit.classList.remove('is-webgl'));
+  };
+  const whenIdle = () =>
+    'requestIdleCallback' in window
+      ? requestIdleCallback(start, { timeout: 2500 })
+      : setTimeout(start, 400);
+
+  if (document.readyState === 'complete') whenIdle();
+  else addEventListener('load', whenIdle, { once: true });
+  wide.addEventListener('change', whenIdle);
+</script>
 
 <style>
   .top {
@@ -218,6 +249,22 @@ const profileLinks = (
   .orbit :global(.orbit-bh) {
     position: absolute;
     inset: 0;
+    transition: opacity 0.8s var(--ease);
+  }
+  .orbit-gl {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.8s var(--ease);
+  }
+  .orbit.is-webgl .orbit-gl {
+    opacity: 1;
+  }
+  .orbit.is-webgl :global(.orbit-bh) {
+    opacity: 0;
   }
   .orbit ol {
     margin: 0;
@@ -226,6 +273,7 @@ const profileLinks = (
   }
   .orbit li {
     position: absolute;
+    z-index: 1;
     left: var(--x);
     top: var(--y);
     transform: translate(-50%, -50%);
@@ -298,8 +346,12 @@ const profileLinks = (
       flex-direction: column;
       gap: 24px;
     }
-    .ring {
+    .ring,
+    .orbit-gl {
       display: none;
+    }
+    .orbit.is-webgl :global(.orbit-bh) {
+      opacity: 1;
     }
     .orbit :global(.orbit-bh) {
       position: relative;

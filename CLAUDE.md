@@ -62,6 +62,11 @@ after each phase run `npm run check && npm run build`, list what to look at, com
 - Uzbek converter: `npm run uz -- <path>` (`scripts/uz-new-alphabet.mjs`, tests `npm run test:uz`,
   word exceptions in `scripts/uz-new-alphabet-ignore.txt`). Run `npm run uz -- --dry-run --all <file>`
   on any Uzbek text you write — it catches old-alphabet slips.
+- Home black hole: `src/scripts/blackhole/` (raw WebGL2, no library). `shaders.ts` ray-traces Schwarzschild
+  null geodesics (r_s = 1, ISCO 3, disk to 7.2, g³-style Doppler beaming); `index.ts` = runtime (DPR ≤ 1.5,
+  30 fps on coarse pointers, pause off-screen/hidden, one still frame with reduced motion, adaptive
+  resolution, onFail → CSS fallback). Loaded by Home.astro only at ≥ 768px after `load` + idle; the CSS
+  `BlackHole.astro` stays underneath until the first WebGL frame (`.orbit.is-webgl`).
 - Pages for later phases (`research/tools`, `research/talks`, `notes`) use `src/views/SectionStub.astro`.
 
 Every page exists in both languages. Links always go through `localizePath(lang, route)`;
