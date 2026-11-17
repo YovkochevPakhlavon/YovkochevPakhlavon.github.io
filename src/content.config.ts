@@ -87,15 +87,17 @@ const about = defineCollection({
         }),
       )
       .min(1, 'timeline needs at least one item'),
-    interests: z.array(text('interests item')),
-    beyond: z.array(text('beyond item')),
-    achievements: z.array(
-      z.object({
-        year: text('achievements.year'),
-        title: text('achievements.title'),
-        text: text('achievements.text').default(''),
-      }),
-    ),
+    interests: z.array(text('interests item')).default([]),
+    beyond: z.array(text('beyond item')).default([]),
+    achievements: z
+      .array(
+        z.object({
+          year: text('achievements.year'),
+          title: text('achievements.title'),
+          text: text('achievements.text').default(''),
+        }),
+      )
+      .default([]),
   }),
 });
 

@@ -20,11 +20,31 @@ const bilingual = (field: string) =>
     { error: `"${field}" needs an "en:" and a "uz:" line` },
   );
 
+const isUrl = (s: string) => {
+  try {
+    return ['https:', 'http:'].includes(new URL(s).protocol);
+  } catch {
+    return false;
+  }
+};
+const isEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+
+/**
+ * Optional text: a missing value (the admin panel leaves empty fields out of the file)
+ * or '' means "not set"; anything else must pass the check.
+ */
+const optional = (field: string, check: (s: string) => boolean, expected: string) =>
+  z.preprocess(
+    (v) => (v === undefined || v === null ? '' : v),
+    z
+      .string({ error: `"${field}" must be ${expected} or empty` })
+      .trim()
+      .refine((v) => v === '' || check(v), {
+        error: `"${field}" must be ${expected} or empty`,
+      }),
+  );
 const optionalUrl = (field: string) =>
-  z.union([
-    z.literal(''),
-    z.url({ error: `"links.${field}" must be a full URL (https://…) or ''` }),
-  ]);
+  optional(`links.${field}`, isUrl, 'a full URL starting with https://');
 
 const ProfileSchema = z.object({
   name: bilingual('name'),
@@ -49,19 +69,19 @@ const ProfileSchema = z.object({
     .trim()
     .default('files/cv.pdf')
     .transform((p) => p.replace(/^\/+/, '').replace(/^public\//, '')),
-  email: z.union([z.literal(''), z.email({ error: '"email" must be an email address or \'\'' })]),
-  links: z.object({
-    orcid: optionalUrl('orcid'),
-    scholar: optionalUrl('scholar'),
-    arxiv: optionalUrl('arxiv'),
-    researchgate: optionalUrl('researchgate'),
-    scopus: optionalUrl('scopus'),
-    github: optionalUrl('github'),
-  }),
-  formEndpoint: z.union([
-    z.literal(''),
-    z.url({ error: '"formEndpoint" must be a full URL (https://…) or \'\'' }),
-  ]),
+  email: optional('email', isEmail, 'an email address like name@example.com'),
+  links: z.preprocess(
+    (v) => v ?? {},
+    z.object({
+      orcid: optionalUrl('orcid'),
+      scholar: optionalUrl('scholar'),
+      arxiv: optionalUrl('arxiv'),
+      researchgate: optionalUrl('researchgate'),
+      scopus: optionalUrl('scopus'),
+      github: optionalUrl('github'),
+    }),
+  ),
+  formEndpoint: optional('formEndpoint', isUrl, 'a full URL starting with https://'),
 });
 
 export type Profile = z.infer<typeof ProfileSchema>;
