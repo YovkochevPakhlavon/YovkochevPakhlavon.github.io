@@ -339,6 +339,17 @@ sayt **eski holatida qoladi** (buzilmaydi) va GitHub sizga e-poçta yuboradi.
 
 3. Şu faylni tuzating (admin panelda yoki faylda) — sayt avtomatik qayta quriladi.
 
+**Kompyuterdan GitHubga yuborişda (push) parol yoki "Keychain" söralsa.** GitHub push uçun
+hisob parolini qabul qilmaydi; "Keychain" oynasi esa Mac kompyuteringiz parolini söraydi.
+Terminalda bir marta quyidagini bajaring (GitHub CLI orqali kiriş sozlanadi), şundan keyin
+VS Code va terminal parol sörmaydi:
+
+```bash
+gh auth setup-git
+```
+
+Agar `gh` örnatilmagan bölsa: `brew install gh`, keyin `gh auth login`.
+
 Köp uçraydigan xatolar:
 
 | Xabar                            | Sabab                                 |

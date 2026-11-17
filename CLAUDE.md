@@ -55,6 +55,8 @@ after each phase run `npm run check && npm run build`, list what to look at, com
   link to an ID, cover images via `image()` relative to the yaml). Course page tabs are `#anchor` links:
   stacked sections without JS, one panel at a time with JS (`aria-current` on the active tab).
   `YouTube.astro` = thumbnail facade; iframe from youtube-nocookie.com only after click.
+- Admin panel saves with `omit_empty_optional_fields`: an empty field is _left out_ of the file. Every
+  optional schema field must therefore accept a missing value (`.default(...)` / preprocess), or the build breaks.
 - Admin panel: Sveltia CMS, `public/admin/index.html` (version pinned) + `public/admin/config.yml`.
   Token sign-in only (`auth_methods: [token]`). Any content field added to `src/content.config.ts` or
   `profile.yaml` must also be added to `config.yml`. Uploaded paths start with `/` — schemas strip it.
