@@ -37,14 +37,16 @@ On the site, placeholders look like `[this]` and are shown in grey or with a das
 
 ## Publications — `src/data/publications.bib`
 
-- [ ] "Quasi-periodic oscillations of anisotropic black holes" (Annals of Physics, under revision):
-      full author list **in the correct order** (currently `Yovkochev, Pakhlavon and {[co-authors]}`) and year
-- [ ] "Constraining Dark Matter Halo Effects on Rotating Black Hole Shadows with EHT Observations" (submitted):
-      full author list in order, journal and year
-- [ ] arXiv IDs (`eprint = {…}` + `archiveprefix = {arXiv}`) and DOIs, once they exist
+- [ ] QPO paper (Annals of Physics, accepted): DOI and volume/pages once it is out
+- [ ] PRD chaos paper: has volume, issue and pages (Oct 2026) — change `status` from `accepted` to `published`?
+- [ ] Chinese Physics C paper: abstract left out (the pasted text had lost its Greek symbols); paste it again if wanted
+- [ ] Physics of the Dark Universe and Nuclear Physics B papers: author written as `Yovqochev, Pahlavon`
+      (the publisher's export had first/last name swapped) — check this matches the printed paper
+- [ ] arXiv IDs (`eprint = {…}` + `archiveprefix = {arXiv}`), once they exist
 - [ ] Thesis: check `school` — written as "Scientific Council, Institute of Fundamental and Applied Research (TIIAME)"
-- [ ] Check the theme tags Claude assigned from the titles: QPO paper → `qpo, anisotropic`;
-      EHT paper → `shadows, cosmology`; thesis → `anisotropic`
+- [ ] Check the theme tags Claude assigned: QPO → `qpo, anisotropic`; PRD chaos → `anisotropic, thermodynamics`;
+      CPC lensing → `shadows, anisotropic`; EPJ Plus → `thermodynamics`; JFAR → `anisotropic`;
+      NPB wormhole and PDU plasma → `shadows`; both Turanian papers → no theme; thesis → `anisotropic`
 - [ ] Other papers, preprints and textbooks (paste their BibTeX into `src/data/publications.bib`)
 - [ ] Optional: thesis abstract PDF (`pdf = {files/…}`) — the mockup showed an "Abstract PDF" button
 
