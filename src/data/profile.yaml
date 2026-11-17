@@ -9,8 +9,8 @@ name:
 
 # Short name used next to the logo.
 shortName:
-  en: Yovkochev
-  uz: Yovqoçev
+  en: Pakhlavon
+  uz: Pahlavon
 
 position:
   en: Assistant, Department of Physics
@@ -29,8 +29,8 @@ location:
   uz: Samarqand, Özbekiston
 
 degree:
-  en: PhD, 2026 (Theoretical Physics)
-  uz: PhD, 2026 (Nazariy fizika)
+  en: PhD, 2026 (Theoretical Physics and Astronomy)
+  uz: PhD, 2026 (Nazariy fizika va Astronomiya)
 
 # Family names that mean you in publications.bib (shown in bold in author lists).
 bibtexNames:
@@ -39,21 +39,21 @@ bibtexNames:
   - Yovqoçev
 
 # Portrait: an image file in src/assets/ (Astro makes optimized versions). '' = placeholder.
-portrait: ''
+portrait: 'portrait.jpg'
 
 # CV: a PDF in public/files/. "Download CV" buttons and /cv point here.
 cv: files/cv.pdf
 
 # Professional email. Empty until you fill it in (see TODO-CONTENT.md).
-email: ''
+email: 'yovqochevp@gmail.com'
 
 # Academic profiles: full URLs. Empty ones are hidden.
 links:
-  orcid: ''
-  scholar: ''
+  orcid: https://orcid.org/0009-0004-0099-5244
+  scholar: https://scholar.google.com/citations?hl=en&user=2vbjHdsAAAAJ
   arxiv: ''
   researchgate: ''
-  scopus: ''
+  scopus: https://www.scopus.com/authid/detail.uri?authorId=60584177200
   github: https://github.com/YovkochevPakhlavon
 
 # Contact form endpoint (e.g. a Formspree URL). Empty = show a "Write me an email" button.
