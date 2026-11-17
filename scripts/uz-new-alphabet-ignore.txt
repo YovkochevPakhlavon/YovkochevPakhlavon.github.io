@@ -29,6 +29,7 @@ Shiki
 Sheet
 Sheets
 Chrome
+Keychain
 Search
 Researcher
 
