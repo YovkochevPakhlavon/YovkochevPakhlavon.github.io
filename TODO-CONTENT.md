@@ -28,12 +28,12 @@ On the site, placeholders look like `[this]` and are shown in grey or with a das
 
 ## About — `src/content/about/en.md` and `uz.md`
 
-- [ ] One or two sentences about yourself (last paragraph of the bio)
-- [ ] MSc — field, university and year (timeline)
-- [ ] BSc — field, university and year (timeline)
-- [ ] "Beyond research" — two more interests
+Filled from the CV (Nov 2026): timeline, research interests, bio, awards; hobbies from the owner.
+
+- [ ] Optional: a sentence on what drew you to physics (bio, last paragraph)
 - [ ] Achievements — year BlackPy v0.2 was released (the mockup said 2026; not confirmed)
-- [ ] Achievements — awards, grants or fellowships (with years)
+- [ ] REVIEW the Claude-written Uzbek in `uz.md`: timeline, interests, "Rogeyn (uzoq masofali jamoaviy
+      orientirlaş)", Erasmus+ achievement, last bio paragraph. Foreign university names are kept in English.
 
 ## Publications — `src/data/publications.bib`
 
