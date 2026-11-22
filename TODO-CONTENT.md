@@ -38,7 +38,6 @@ Filled from the CV (Nov 2026): timeline, research interests, bio, awards; hobbie
 ## Publications — `src/data/publications.bib`
 
 - [ ] QPO paper (Annals of Physics, accepted): DOI and volume/pages once it is out
-- [ ] PRD chaos paper: has volume, issue and pages (Oct 2026) — change `status` from `accepted` to `published`?
 - [ ] Chinese Physics C paper: abstract left out (the pasted text had lost its Greek symbols); paste it again if wanted
 - [ ] Physics of the Dark Universe and Nuclear Physics B papers: author written as `Yovqochev, Pahlavon`
       (the publisher's export had first/last name swapped) — check this matches the printed paper
