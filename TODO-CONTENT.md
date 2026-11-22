@@ -42,6 +42,9 @@ Filled from the CV (Nov 2026): timeline, research interests, bio, awards; hobbie
 - [ ] Chinese Physics C paper: abstract left out (the pasted text had lost its Greek symbols); paste it again if wanted
 - [ ] Physics of the Dark Universe and Nuclear Physics B papers: author written as `Yovqochev, Pahlavon`
       (the publisher's export had first/last name swapped) — check this matches the printed paper
+- [ ] Three submitted manuscripts from the CV (Chinese J. Phys., EPJ Plus, Physica Scripta): `year` is
+      `[year]`; first names of Z. Turakhonov, H. Hoshimov and P. Channuie are not in the CV; status set to
+      `submitted` (CV says "under review"/"submitted"); themes `cosmology` (dark photon), `thermodynamics`, `qpo, cosmology`
 - [ ] arXiv IDs (`eprint = {…}` + `archiveprefix = {arXiv}`), once they exist
 - [ ] Thesis: check `school` — written as "Scientific Council, Institute of Fundamental and Applied Research (TIIAME)"
 - [ ] Check the theme tags Claude assigned: QPO → `qpo, anisotropic`; PRD chaos → `anisotropic, thermodynamics`;
@@ -49,6 +52,12 @@ Filled from the CV (Nov 2026): timeline, research interests, bio, awards; hobbie
       NPB wormhole and PDU plasma → `shadows`; both Turanian papers → no theme; thesis → `anisotropic`
 - [ ] Other papers, preprints and textbooks (paste their BibTeX into `src/data/publications.bib`)
 - [ ] Optional: thesis abstract PDF (`pdf = {files/…}`) — the mockup showed an "Abstract PDF" button
+
+## Talks — `src/content/talks/`
+
+- [ ] ICTPA-2025 (Apr 2025) and RAGtime 26 (Dec 2024): exact days unknown, so only the month is shown —
+      write `date: 2025-04-15` style if you want the day. Slides link to Google Drive (from the CV); make sure
+      both Drive files are shared as "Anyone with the link". ICTPA-2025 event website not known.
 
 ## Projects — `src/content/projects/`
 

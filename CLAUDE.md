@@ -72,7 +72,7 @@ after each phase run `npm run check && npm run build`, list what to look at, com
   idle; the CSS `BlackHole.astro` stays until the first WebGL frame (`.orbit.is-webgl`) and is the fallback.
 - Notes: `/notes/` + `/notes/<slug>/` (Markdown/MDX, math via remark-math + rehype-katex configured with the
   `unified()` processor in astro.config.mjs; KaTeX CSS linked only when a note has `$…$`). Drafts show only in dev;
-  `example-note.md` / `example-talk.yaml` are draft templates. Talks: `/research/talks/` grouped by year.
+  `example-note.md` / `example-talk.yaml` are draft templates. Talks: `/research/talks/` grouped by year; `date: 2025-04` = month only (`monthOnly`), `slides`/`poster` = file in `public/` or https link.
 - SEO: OG/Twitter meta in BaseLayout; OG PNGs generated at build (`src/lib/og.ts`, satori + sharp, site fonts)
   at `/og/<lang>/<route>.png` — every new route must appear in `ogEntries()`. JSON-LD: Person (Home, About),
   ScholarlyArticle (publications with DOI), BlogPosting (notes). Sitemap via @astrojs/sitemap (i18n),

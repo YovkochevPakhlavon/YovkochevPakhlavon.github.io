@@ -11,7 +11,7 @@ timeline:
   - when: 2026-yil may — iyun
     title: Mehmon tadqiqotçi, Fizika kafedrasi
     place: 'Zhejiang Normal University, Jinhua, Xitoy · Qabul qiluvçi: prof. Ghulam Mustafa'
-  - when: 2025-yil oktyabr — 2026-yil yanvar
+  - when: 2025-yil oktabr — 2026-yil yanvar
     title: Mehmon tadqiqotçi (Erasmus+), Fizika instituti
     place: Silesian University in Opava, Çexiya
   - when: 2025-yil yanvar — 2026-yil noyabr
@@ -20,13 +20,13 @@ timeline:
   - when: 2023-yil noyabr — 2024-yil dekabr
     title: Kiçik ilmiy xodim
     place: Uluğbek nomidagi Astronomiya instituti, Toşkent
-  - when: 2022-yil sentyabr — 2024-yil iyun
+  - when: 2022-yil sentabr — 2024-yil iyun
     title: 'Magistratura: matematik fizika'
     place: Özbekiston Milliy universiteti, Toşkent
-  - when: 2022-yil sentyabr — 2023-yil iyun
+  - when: 2022-yil sentabr — 2023-yil iyun
     title: Matematika öqituvçisi
     place: Cambridge International School of IT and Economics, Toşkent
-  - when: 2018-yil sentyabr — 2022-yil iyul
+  - when: 2018-yil sentabr — 2022-yil iyul
     title: 'Bakalavriat: fizika'
     place: Özbekiston Milliy universiteti, Toşkent
 interests:
@@ -37,7 +37,6 @@ interests:
   - Kosmologiya va maʼlumotlar tahlili
   - Kasr tartibli differensial tenglamalar uçun sonli usullar va MCMC usulida parametrlarni baholaş
 beyond:
-  - Bölajak fizika öqituvçilariga ilmiy tadqiqot usullarini örgatiş
   - Stol tennisi
   - Triatlon
   - Basketbol

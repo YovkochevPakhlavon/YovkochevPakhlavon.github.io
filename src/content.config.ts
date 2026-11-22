@@ -46,6 +46,12 @@ const existingFile = (what: string) =>
     }
   });
 
+/** A file in public/ (must exist) or a full https:// link, e.g. to slides on Google Drive; or ''. */
+const fileOrUrl = (what: string) =>
+  z.union([z.url({ protocol: /^https?$/ }), existingFile(what)], {
+    error: `${what} must be a file in public/ or a full URL (https://…)`,
+  });
+
 /** Either one text for both languages, or { en, uz }. Always becomes { en, uz }. */
 const localText = (what: string) =>
   z
@@ -241,23 +247,33 @@ const courses = defineCollection({
 // ---------- Talks: src/content/talks/<name>.yaml ----------
 const talks = defineCollection({
   loader: glob({ base: './src/content/talks', pattern: '*.yaml' }),
-  schema: z.object({
-    title: localText('title'),
-    kind: z
-      .enum(['talk', 'invited', 'poster', 'seminar'], {
-        error: 'kind must be talk, invited, poster or seminar',
-      })
-      .default('talk'),
-    event: text('event'),
-    city: text('city').default(''),
-    date: z.coerce.date({ error: 'date must be a date like 2026-05-14' }),
-    slides: existingFile('slides'),
-    poster: existingFile('poster'),
-    video: urlOrEmpty('video'),
-    url: urlOrEmpty('url'),
-    /** Drafts are shown only in `npm run dev`. */
-    draft: z.boolean().default(false),
-  }),
+  // `date: 2025-04` (month only, when the day is not known) is shown as "Apr 2025".
+  schema: z.preprocess(
+    (raw) => {
+      const r = raw as Record<string, unknown> | null;
+      const d = r && typeof r.date === 'string' ? r.date.trim() : '';
+      return /^\d{4}-\d{2}$/.test(d) ? { ...r, date: `${d}-01`, monthOnly: true } : raw;
+    },
+    z.object({
+      title: localText('title'),
+      kind: z
+        .enum(['talk', 'invited', 'poster', 'seminar'], {
+          error: 'kind must be talk, invited, poster or seminar',
+        })
+        .default('talk'),
+      event: text('event'),
+      city: text('city').default(''),
+      date: z.coerce.date({ error: 'date must be a date like 2026-05-14' }),
+      slides: fileOrUrl('slides'),
+      poster: fileOrUrl('poster'),
+      video: urlOrEmpty('video'),
+      url: urlOrEmpty('url'),
+      /** Drafts are shown only in `npm run dev`. */
+      draft: z.boolean().default(false),
+      /** Set automatically when `date` has no day. */
+      monthOnly: z.boolean().default(false),
+    }),
+  ),
 });
 
 // ---------- Notes: src/content/notes/{en,uz}/<name>.md or .mdx (math: $…$, $$…$$) ----------

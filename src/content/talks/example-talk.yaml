@@ -4,8 +4,8 @@ title: '[Talk title]'
 kind: talk # talk | invited | poster | seminar
 event: '[Conference or seminar name]'
 city: '[City]'
-date: 2026-11-16
-slides: '' # e.g. files/talks/2026-slides.pdf
+date: 2026-11-16 # or 2026-11 when the day is not known (shown as month only)
+slides: '' # e.g. files/talks/2026-slides.pdf, or a full https:// link
 poster: ''
 video: '' # full URL
 url: '' # event website

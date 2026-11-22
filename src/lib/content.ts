@@ -75,6 +75,12 @@ const UZ_MONTHS = [
   'dekabr',
 ];
 
+/** "Dec 2026" / "2026-yil dekabr" — for dates known only to the month. */
+export function formatMonth(d: Date, lang: Lang): string {
+  if (lang === 'uz') return `${d.getUTCFullYear()}-yil ${UZ_MONTHS[d.getUTCMonth()]}`;
+  return d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+}
+
 /** "1 Dec 2026" / "2026-yil 1-dekabr" (fixed spelling, not browser-dependent). */
 export function formatDate(d: Date, lang: Lang): string {
   if (lang === 'uz')

@@ -3,7 +3,7 @@
 import PageLayout from '../layouts/PageLayout.astro';
 import PageIntro from '../components/PageIntro.astro';
 import { localizePath, useTranslations, type Lang } from '../i18n';
-import { formatDate, getTalks } from '../lib/content';
+import { formatDate, formatMonth, getTalks } from '../lib/content';
 import { publicUrl } from '../lib/files';
 
 interface Props {
@@ -12,6 +12,8 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 const talks = await getTalks();
+/** Local file → site URL; a full link (e.g. Google Drive) stays as it is. */
+const href = (p: string) => (/^https?:\/\//.test(p) ? p : publicUrl(p));
 const years = [...new Set(talks.map((x) => x.data.date.getUTCFullYear()))];
 ---
 
@@ -44,19 +46,21 @@ const years = [...new Set(talks.map((x) => x.data.date.getUTCFullYear()))];
             <li class="talk">
               <p class="meta mono">
                 <span class="kind">{t(`talks.kind.${d.kind}`)}</span>
-                <time datetime={d.date.toISOString().slice(0, 10)}>{formatDate(d.date, lang)}</time>
+                <time datetime={d.date.toISOString().slice(0, d.monthOnly ? 7 : 10)}>
+                  {d.monthOnly ? formatMonth(d.date, lang) : formatDate(d.date, lang)}
+                </time>
               </p>
               <h3>{d.title[lang]}</h3>
               <p class="where">{[d.event, d.city].filter(Boolean).join(', ')}</p>
               {(d.slides || d.poster || d.video || d.url) && (
                 <p class="links">
                   {d.slides && (
-                    <a class="act" href={publicUrl(d.slides)}>
+                    <a class="act" href={href(d.slides)}>
                       {t('talks.slides')}
                     </a>
                   )}
                   {d.poster && (
-                    <a class="act" href={publicUrl(d.poster)}>
+                    <a class="act" href={href(d.poster)}>
                       {t('talks.poster')}
                     </a>
                   )}

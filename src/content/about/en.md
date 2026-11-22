@@ -36,7 +36,6 @@ interests:
   - Cosmology and data analysis
   - Numerical methods for fractional differential equations and MCMC parameter estimation
 beyond:
-  - Teaching research methods to future physics teachers
   - Table tennis
   - Triathlon
   - Basketball
@@ -50,8 +49,8 @@ achievements:
     text: Three months at the Institute of Physics, Silesian University in Opava, Czech Republic
   - year: 2023/2024
     title: State Scholarship of the President of the Republic of Uzbekistan
-  - year: '[Year]'
-    title: BlackPy v0.2 released
+  - year: '2026'
+    title: BlackPy v1.0.0 released
     text: Open-source toolkit for black hole observables
 ---
 
